@@ -1,0 +1,24 @@
+{
+  "name": "jitsi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc",
+    "serve": "nodemon ./src/index.ts",
+    "start": "ts-node ./src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "puppeteer-core": "^8.0.0",
+    "youtube-dl-exec": "^1.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.41",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
+  }
+}

@@ -1,0 +1,61 @@
+<div id="meet"></div>
+<audio id="audio"></audio>
+
+<script src='https://meet.jit.si/external_api.js'></script>
+<script>
+    /**
+     * Populates the meet container with a jitsi meet iframe and
+     * joins a given conference
+     *
+     * @param {string} room - The room to join
+     * @returns - Jitsi API Object
+     */
+    function joinConference(room) {
+        const domain = 'meet.jit.si';
+        const options = {
+            userInfo: {
+                displayName: 'Doe John'
+            },
+            roomName: room,
+            width: 700,
+            height: 700,
+            parentNode: document.querySelector('#meet'),
+            configOverwrite: {
+                audioQuality: {
+                    stereo: true,
+                    opusMaxAverageBitrate: 510000 // Value to fit the 6000 to 510000 range.
+                },
+                prejoinPageEnabled: false,
+            }
+        };
+
+        const api = new JitsiMeetExternalAPI(domain, options);
+
+        api.getIFrame().setAttribute('sandbox', ""); // allow-same-origin
+
+        const iframeNav = api.getIFrame().contentWindow.navigator;
+        const audio = document.getElementById("audio");
+
+
+        const audioContext = new AudioContext();
+        const track = audioContext.createMediaElementSource(audio);
+        const gainNode = audioContext.createGain();
+        const destStream = audioContext.createMediaStreamDestination();
+
+        gainNode.gain.value = 0.2;
+
+        track
+            .connect(gainNode)
+            .connect(destStream);
+
+
+        audio.onplay = function() {
+            iframeNav.mediaDevices.getUserMedia = async function() {
+                audioContext.resume()
+                return destStream.stream;
+            };
+        };
+
+        return api;
+    }
+</script>
