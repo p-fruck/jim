@@ -5,7 +5,6 @@
 
 <script>
     let api; // The jitsi api object
-    const audioContext = new AudioContext();
     const audio = document.getElementById('audio'); // the audio source object
     function dummyMessageListener(event) {}
     /**
@@ -70,14 +69,15 @@
      * @param {string} url - The url to play back
      */
     async function playAudio(url) {
-      audio.setAttribute("src", url);
-      await audio.play();
+        console.warn('Trying to play back', url);
+        audio.setAttribute("src", url);
+        await audio.play();
 
-      // current audio device has to be refreshed to recognize stream
-      const devices = await api.getAvailableDevices();
-      if (devices.audioInput.length) {
-        const [{ label, deviceId }] = devices.audioInput;
-        api.setAudioInputDevice(label, deviceId);
-      }
+        // current audio device has to be refreshed to recognize stream
+        const devices = await api.getAvailableDevices();
+        if (devices.audioInput.length) {
+            const [{ label, deviceId }] = devices.audioInput;
+            api.setAudioInputDevice(label, deviceId);
+        }
     }
 </script>

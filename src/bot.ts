@@ -1,4 +1,3 @@
-import { appendFile } from 'node:fs';
 import { Browser, Page } from 'puppeteer-core';
 import youtubedl from 'youtube-dl-exec';
 
@@ -29,43 +28,87 @@ interface IParticipantKickedOut {
   }
 }
 
+type ExposableFunction = (arg0: any) => any;
+
 export class JitsiBot {
   private constructor(private page: Page) { }
 
-  static async init(browser: Browser, room: string, botName: string): Promise<JitsiBot> {
+  /**
+   * Initializationfunction of the bot, to circumvent an ansync contructor.
+   * This function will load a jitsi meeting, join a given conference and
+   * bind some functions to listen to the jitsi event api.
+   *
+   * @param browser - The browser object to utilize
+   * @param room - Name of the room to join
+   * @param botName - The display name of the bot
+   * @returns - Promise of the JitsiBot instance
+   */
+  static async init(browser: Browser, roomName: string, botName: string): Promise<JitsiBot> {
     const page = await browser.newPage();
     const url = `file://${__dirname}/../index.html`;
 
     await page.goto(url, { waitUntil: 'load' });
-    await page.evaluate(`joinConference('${room}', '${botName}')`);
+    await page.evaluate(`joinConference('${roomName}', '${botName}')`);
 
     const bot = new JitsiBot(page);
-    await bot.bindFunctions();
+
+    await bot.exposeListenerFunction(bot.participantKickedOut);
+    await bot.exposeListenerFunction(bot.videoConferenceJoined);
 
     return bot;
   }
 
-  private async bindFunctions(): Promise<void> {
-    await this.page.exposeFunction('onIncomingMessage', (event: IIncomingMessage) => {
-      if (event.message.startsWith('!play ')) {
-        const cmd = event.message.split(' ');
-        if (cmd.length === 2) {
-          console.log('Playing ', cmd[1])
-          this.playAudio(cmd[1]);
-        }
-      }
-    });
+  /**
+   * Wait until bot joined into the meeting. Then unregister the dummy message
+   * listener and register the real one. This is used to circumvent unread
+   * messages on join.
+   */
+  private async videoConferenceJoined(): Promise<void> {
     setTimeout(async () => {
-      await this.page.evaluate('api.removeListener("incomingMessage", dummyMessageListener)');
-      await this.page.evaluate('api.addListener("incomingMessage", onIncomingMessage)');
+      await this.exposeFunction(this.incomingMessage);
+      await this.removeEventListener(this.incomingMessage, 'dummyMessageListener');
+      await this.addEventListener(this.incomingMessage);
     }, 10000); // ToDo: Fix timing problem
+  }
 
-    await this.page.exposeFunction('onParticipantKickedOut', async (event: IParticipantKickedOut) => {
-      if (!event.kicked.local) return;
-      // Damn, I've got kicked out D:
-      await this.page.browser().close(); // ToDo: Consider multiple bots per browser
-    });
-    await this.page.evaluate('api.addListener("participantKickedOut", onParticipantKickedOut)');
+  /**
+   * Listen to incoming chat messages. Used to detect bot commands.
+   *
+   * @param event - The message event
+   */
+  private async incomingMessage(event: IIncomingMessage): Promise<void> {
+    if (event.message.startsWith('!play ')) {
+      const cmd = event.message.split(' ');
+      if (cmd.length === 2) {
+        await this.playAudio(cmd[1]);
+      }
+    }
+  }
+
+  /**
+   * Detect when participant gets kicked out of the meeting. If the bot gets
+   * kicked out, he will end the browsing session.
+   *
+   * @param event - The Participant kicked event
+   */
+  private async participantKickedOut(event: IParticipantKickedOut): Promise<void> {
+    if (!event.kicked.local) return;
+    // Damn, I've got kicked out D:
+    await this.page.browser().close(); // ToDo: Consider multiple bots per browser
+  }
+
+  private async exposeFunction(fn: ExposableFunction): Promise<void> {
+    await this.page.exposeFunction(fn.name, fn);
+  }
+  private async addEventListener(fn: ExposableFunction): Promise<void> {
+    await this.page.evaluate(`api.addListener('${fn.name}', ${fn.name})`);
+  }
+  private async removeEventListener(fn: ExposableFunction, name: string): Promise<void> {
+    await this.page.evaluate(`api.removeListener('${fn.name}', ${name})`);
+  }
+  private async exposeListenerFunction(fn: ExposableFunction): Promise<void> {
+    await this.exposeFunction(fn);
+    await this.addEventListener(fn);
   }
 
   async playAudio(videoUrl: string): Promise<void> {
@@ -74,6 +117,7 @@ export class JitsiBot {
     try  {
       await this.page.evaluate(`playAudio('${audioUrl}')`);
     } catch (err) {
+      // Some links cannot be played back --> Issue with media codec?
       console.error('Failed to play audio due to ', err)
     }
   }
