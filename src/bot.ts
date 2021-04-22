@@ -31,7 +31,10 @@ interface IParticipantKickedOut {
 type ExposableFunction = (arg0: any) => any;
 
 export class JitsiBot {
-  private constructor(private page: Page) { }
+  private constructor(private page: Page) {
+    void this.exposeListenerFunction(this.participantKickedOut);
+    void this.exposeListenerFunction(this.videoConferenceJoined);
+  }
 
   /**
    * Initializationfunction of the bot, to circumvent an ansync contructor.
@@ -50,12 +53,7 @@ export class JitsiBot {
     await page.goto(url, { waitUntil: 'load' });
     await page.evaluate(`joinConference('${roomName}', '${botName}')`);
 
-    const bot = new JitsiBot(page);
-
-    await bot.exposeListenerFunction(bot.participantKickedOut);
-    await bot.exposeListenerFunction(bot.videoConferenceJoined);
-
-    return bot;
+    return new JitsiBot(page);
   }
 
   /**
@@ -98,7 +96,7 @@ export class JitsiBot {
   }
 
   private async exposeFunction(fn: ExposableFunction): Promise<void> {
-    await this.page.exposeFunction(fn.name, fn);
+    await this.page.exposeFunction(fn.name, fn.bind(this));
   }
   private async addEventListener(fn: ExposableFunction): Promise<void> {
     await this.page.evaluate(`api.addListener('${fn.name}', ${fn.name})`);
@@ -118,7 +116,7 @@ export class JitsiBot {
       await this.page.evaluate(`playAudio('${audioUrl}')`);
     } catch (err) {
       // Some links cannot be played back --> Issue with media codec?
-      console.error('Failed to play audio due to ', err)
+      console.error('Failed to play audio', videoUrl, audioUrl, err)
     }
   }
 }
