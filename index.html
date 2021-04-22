@@ -2,25 +2,34 @@
 <audio id="audio"></audio>
 
 <script src='https://meet.jit.si/external_api.js'></script>
+
 <script>
+    let api; // The jitsi api object
+    const audio = document.getElementById('audio'); // the audio source object
+
     /**
      * Populates the meet container with a jitsi meet iframe and
      * joins a given conference
      *
-     * @param {string} room - The room to join
-     * @returns - Jitsi API Object
+     * @param {string} roomName - The room to join
+     * @param {string} displayName - The name of the bot
      */
-    function joinConference(room) {
+    function joinConference(roomName, displayName) {
         const domain = 'meet.jit.si';
         const options = {
             userInfo: {
-                displayName: 'Doe John'
+                displayName,
             },
-            roomName: room,
+            roomName,
             width: 700,
             height: 700,
             parentNode: document.querySelector('#meet'),
             configOverwrite: {
+                startWithAudioMuted: false,
+                startWithVideoMuted: true,
+
+                startAudioOnly: true,
+                // startSilent: true, // further testing required
                 audioQuality: {
                     stereo: true,
                     opusMaxAverageBitrate: 510000 // Value to fit the 6000 to 510000 range.
@@ -29,13 +38,11 @@
             }
         };
 
-        const api = new JitsiMeetExternalAPI(domain, options);
+        api = new JitsiMeetExternalAPI(domain, options);
 
         api.getIFrame().setAttribute('sandbox', ""); // allow-same-origin
 
         const iframeNav = api.getIFrame().contentWindow.navigator;
-        const audio = document.getElementById("audio");
-
 
         const audioContext = new AudioContext();
         const track = audioContext.createMediaElementSource(audio);
@@ -48,14 +55,28 @@
             .connect(gainNode)
             .connect(destStream);
 
-
         audio.onplay = function() {
             iframeNav.mediaDevices.getUserMedia = async function() {
                 audioContext.resume()
                 return destStream.stream;
             };
         };
+    }
 
-        return api;
+    /**
+     * Take an url to an audio file and use it as microphone input
+     *
+     * @param {string} url - The url to play back
+     */
+    async function playAudio(url) {
+      audio.setAttribute("src", url);
+      await audio.play();
+
+      // current audio device has to be refreshed to recognize stream
+      const devices = await api.getAvailableDevices();
+      if (devices.audioInput.length) {
+        const [{ label, deviceId }] = devices.audioInput;
+        api.setAudioInputDevice(label, deviceId);
+      }
     }
 </script>

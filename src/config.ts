@@ -15,4 +15,9 @@ const readOrFail = (name: string) => {
 
 export default {
     room: <string> readOrFail('ROOM'),
+    bot: {
+        executable: <string> readOrFail('BOT_EXECUTABLE'),
+        headless: <boolean> (env.BOT_HEADLESS === 'true'),
+        name: <string> env.BOT_NAME || 'DJ Jim',
+    }
 }
