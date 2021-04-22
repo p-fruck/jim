@@ -47,9 +47,18 @@ export class JitsiBot {
 
   private async bindFunctions(): Promise<void> {
     await this.page.exposeFunction('onIncomingMessage', (event: IIncomingMessage) => {
-      console.log(event.message)
+      if (event.message.startsWith('!play ')) {
+        const cmd = event.message.split(' ');
+        if (cmd.length === 2) {
+          console.log('Playing ', cmd[1])
+          this.playAudio(cmd[1]);
+        }
+      }
     });
-    await this.page.evaluate('api.addListener("incomingMessage", onIncomingMessage)');
+    setTimeout(async () => {
+      await this.page.evaluate('api.removeListener("incomingMessage", dummyMessageListener)');
+      await this.page.evaluate('api.addListener("incomingMessage", onIncomingMessage)');
+    }, 10000); // ToDo: Fix timing problem
 
     await this.page.exposeFunction('onParticipantKickedOut', async (event: IParticipantKickedOut) => {
       if (!event.kicked.local) return;
@@ -60,7 +69,12 @@ export class JitsiBot {
   }
 
   async playAudio(videoUrl: string): Promise<void> {
+    console.log('Playing Audio!')
     const { url: audioUrl } = await youtubedl(videoUrl, youtubeConf);
-    await this.page.evaluate(`playAudio('${audioUrl}')`);
+    try  {
+      await this.page.evaluate(`playAudio('${audioUrl}')`);
+    } catch (err) {
+      console.error('Failed to play audio due to ', err)
+    }
   }
 }

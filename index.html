@@ -5,8 +5,9 @@
 
 <script>
     let api; // The jitsi api object
+    const audioContext = new AudioContext();
     const audio = document.getElementById('audio'); // the audio source object
-
+    function dummyMessageListener(event) {}
     /**
      * Populates the meet container with a jitsi meet iframe and
      * joins a given conference
