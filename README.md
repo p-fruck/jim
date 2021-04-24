@@ -1,6 +1,13 @@
 # JIM - Jitsi Integrated Musicbot
 
-Say hello to Jim, the Jitsi Integrate Musicbot. He will assist you bringing good music to your jitsi party :tada:
+Say hello to Jim, the Jitsi Integrated Musicbot. He will assist you bringing good music to your jitsi party :tada:
+
+## Commands
+
+* `play` - Used to play a youtube video. Examples:
+    > !play https://link-to-your-video
+
+    > !play some youtube search term
 
 ## How to deploy
 

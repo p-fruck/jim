@@ -6,8 +6,10 @@ const youtubeConf = {
   noWarnings: true,
   noCallHome: true,
   extractAudio: true,
+  audioFormat: 'vorbis',
   noCheckCertificate: true,
   preferFreeFormats: true,
+  defaultSearch: 'ytsearch',
   youtubeSkipDashManifest: true,
 }
 
@@ -75,10 +77,10 @@ export class JitsiBot {
    * @param event - The message event
    */
   private async incomingMessage(event: IIncomingMessage): Promise<void> {
-    if (event.message.startsWith('!play ')) {
-      const cmd = event.message.split(' ');
-      if (cmd.length === 2) {
-        await this.playAudio(cmd[1]);
+    const [cmd, ...params] = event.message.split(' ');
+    if (cmd === '!play') {
+      if (params.length) {
+        await this.playAudio(params.join(' '));
       }
     }
   }
@@ -111,12 +113,16 @@ export class JitsiBot {
 
   async playAudio(videoUrl: string): Promise<void> {
     console.log('Playing Audio!')
-    const { url: audioUrl } = await youtubedl(videoUrl, youtubeConf);
+    const result = await youtubedl(videoUrl, youtubeConf);
+    const opus = result.formats.filter((format) => format.acodec === 'opus');
+    if (!opus.length) {
+      throw new Error('Couldn\'t play video due to nonfree codec');
+    }
     try  {
-      await this.page.evaluate(`playAudio('${audioUrl}')`);
+      await this.page.evaluate(`playAudio('${opus[0].url}')`);
     } catch (err) {
       // Some links cannot be played back --> Issue with media codec?
-      console.error('Failed to play audio', videoUrl, audioUrl, err)
+      console.error('Failed to play audio', videoUrl, opus[0], err)
     }
   }
 }

@@ -1,10 +1,11 @@
 <div id="meet"></div>
-<audio id="audio"></audio>
+<audio id="audio" autoplay></audio>
 
 <script src='https://meet.jit.si/external_api.js'></script>
 
 <script>
     let api; // The jitsi api object
+    let isFirstPlay = true;
     const audio = document.getElementById('audio'); // the audio source object
     function dummyMessageListener(event) {}
     /**
@@ -57,7 +58,7 @@
 
         audio.onplay = function() {
             iframeNav.mediaDevices.getUserMedia = async function() {
-                audioContext.resume()
+                await audioContext.resume()
                 return destStream.stream;
             };
         };
@@ -70,14 +71,21 @@
      */
     async function playAudio(url) {
         console.warn('Trying to play back', url);
+        // if (audioContext.state === 'running') {
+        //     await audioContext.suspend();
+        // }
+        await audio.pause();
         audio.setAttribute("src", url);
         await audio.play();
 
-        // current audio device has to be refreshed to recognize stream
-        const devices = await api.getAvailableDevices();
-        if (devices.audioInput.length) {
-            const [{ label, deviceId }] = devices.audioInput;
-            api.setAudioInputDevice(label, deviceId);
+        if (isFirstPlay) {
+            // current audio device has to be refreshed to recognize stream
+            const devices = await api.getAvailableDevices();
+            if (devices.audioInput.length) {
+                const [{ label, deviceId }] = devices.audioInput;
+                api.setAudioInputDevice(label, deviceId);
+            }
+            isFirstPlay = false;
         }
     }
 </script>
