@@ -77,10 +77,10 @@ export class JitsiBot {
    * @param event - The message event
    */
   private async incomingMessage(event: IIncomingMessage): Promise<void> {
-    if (event.message.startsWith('!play ')) {
-      const cmd = event.message.split(' ');
-      if (cmd.length === 2) {
-        await this.playAudio(cmd[1]);
+    const [cmd, ...params] = event.message.split(' ');
+    if (cmd === '!play') {
+      if (params.length) {
+        await this.playAudio(params.join(' '));
       }
     }
   }
