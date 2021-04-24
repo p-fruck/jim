@@ -17,7 +17,7 @@ async function startBrowser(): Promise<void> {
   });
 
   const bot = await JitsiBot.init(browser, room, name);
-  await bot.playAudio('https://www.youtube.com/watch?v=y2hIBmhR9J4');
+  await bot.playAudio('https://www.youtube.com/watch?v=u6RJv7f__Mg');
 }
 
 void startBrowser();
