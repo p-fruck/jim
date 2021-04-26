@@ -7,7 +7,9 @@
     "build": "tsc",
     "serve": "nodemon ./src/index.ts",
     "start": "ts-node ./src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint \"./src/**/*.{js,ts}\" --quiet",
+    "lint:fix": "eslint \"./src/**/*.{js,ts}\" --quiet --fix"
   },
   "author": "",
   "license": "ISC",
