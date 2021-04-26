@@ -72,7 +72,7 @@ There is just one thing to do for you before JIM is ready. Set the `ROOM` to the
 
 Change the other values so that it fits your preferences.
 
-If you would like to give JIM some other profile image, set the `BOT_AVATAR_URL`. This must be some kind of URL available for public read. While JIM plays music, it displays the thumbnail of the video and not the profile image.
+If you would like to give JIM some other profile image, set the `BOT_AVATAR_URL`. This must be some kind of URL available for public read. While JIM plays music, he displays the thumbnail of the video and not the profile image.
 
 Afterwards you can simply enter `npm run start` and you should see JIM appear in your meeting!
 
