@@ -57,7 +57,8 @@ export class JitsiBot {
     const url = `file://${__dirname}/../index.html`;
 
     await page.goto(url, { waitUntil: 'load' });
-    await page.evaluate(`joinConference('${roomName}', '${botName}')`);
+    const gain = .01 * config.volume.initialValue;
+    await page.evaluate(`joinConference('${roomName}', '${botName}', ${gain})`);
 
     return new JitsiBot(page);
   }
@@ -102,9 +103,12 @@ export class JitsiBot {
         void this.sendMessages([
           '!add <url|searchTerm> - Add track to queue',
           '!clear - Clear the queue',
+          '!help - Print the help menu',
           '!list - Show tracks in queue',
           '!ping - Ping me!',
           '!play <url|searchTerm> - Play track now, or resume if no params were given',
+          '!vol - Retrieve current volume level',
+          '!vol <+|-|[0-100]> - increment/decrement/set volume level',
         ]);
         break;
       case '!list':
@@ -122,6 +126,34 @@ export class JitsiBot {
         } else {
           const track = await this.fetchAudio(params.join(' '));
           await this.playAudio(track);
+        }
+        break;
+      case '!vol':
+        let gain = <number> await this.page.evaluate('getGain()');
+        if (params.length === 0) {
+          void this.sendMessage(`Current volume level equals ${gain}%`);
+        } else {
+          const { stepSize } = config.volume;
+          switch(true) {
+            case /^(0|100|[1-9][0-9]?)$/.test(params[0]):
+              gain = parseInt(params[0], 10);
+              break;
+            case /^\++$/.test(params[0]):
+              gain += params[0].length * stepSize;
+              break;
+            case /^\-+$/.test(params[0]):
+              gain -= params[0].length * stepSize;
+              break;
+            default:
+              void this.sendMessage(
+                'I did not understand that. Please use !vol to retrieve some ' +
+                'volume information, !vol [0-100] to set the volume level ' +
+                'directly or !vol (+|-), where each plus or minus increments/' +
+                `decrements the total gain by ${stepSize}`
+              );
+              return;
+          }
+          this.page.evaluate(`setGain(${gain})`)
         }
         break;
     }

@@ -24,5 +24,9 @@ export default {
     },
     playlist: {
         maxSize: <number> readInt('PLAYLIST_MAX_SIZE') || 100
+    },
+    volume: {
+        initialValue: <number> readInt('VOLUME_INITAL_VALUE') || 20,
+        stepSize: <number> readInt('VOLUME_STEP_SIZE') || 10
     }
 }

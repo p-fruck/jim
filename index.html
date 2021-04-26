@@ -7,6 +7,8 @@
     let api; // The jitsi api object
     let isFirstPlay = true;
     const audio = document.getElementById('audio'); // the audio source object
+    let gainNode;
+
     function dummyMessageListener(event) {}
     /**
      * Populates the meet container with a jitsi meet iframe and
@@ -15,7 +17,7 @@
      * @param {string} roomName - The room to join
      * @param {string} displayName - The name of the bot
      */
-    function joinConference(roomName, displayName) {
+    function joinConference(roomName, displayName, initialVolume) {
         const domain = 'meet.jit.si';
         const options = {
             userInfo: {
@@ -47,10 +49,10 @@
 
         const audioContext = new AudioContext();
         const track = audioContext.createMediaElementSource(audio);
-        const gainNode = audioContext.createGain();
+        gainNode = audioContext.createGain();
         const destStream = audioContext.createMediaStreamDestination();
 
-        gainNode.gain.value = 0.2;
+        gainNode.gain.value = initialVolume;
 
         track
             .connect(gainNode)
@@ -62,6 +64,27 @@
                 return destStream.stream;
             };
         };
+    }
+
+    /**
+     * Function to get current gain value in percent
+     *
+     * @returns {number} - The gain in percent
+     */
+    function getGain() {
+        return Math.floor(gainNode.gain.value * 100);
+    }
+
+    /**
+     * Set the gain value
+     *
+     * @param {number} gain - The gain value in percent
+     */
+    function setGain(gain) {
+        gain = (gain / 100).toPrecision(3);
+        if (gain > 1) gainNode.gain.value = 1;
+        else if (gain < 0) gainNode.gain.value = 0;
+        else gainNode.gain.value = gain;
     }
 
     /**
