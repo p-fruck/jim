@@ -1,6 +1,6 @@
 <h1 align="center">
   <br />
-  <img src="https://raw.githubusercontent.com/p-fruck/jim/b10112cc5fe7c9485705dd077b173293650869d5/src/assets/logo.svg" alt="JIM" width="200"></a>
+  <img src="https://raw.githubusercontent.com/p-fruck/jim/master/src/assets/logo.svg" alt="JIM" width="200"></a>
   <br />
   Hi, I'm JIM!
   <br />
