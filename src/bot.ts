@@ -48,7 +48,7 @@ export default class JitsiBot {
     const url = `file://${__dirname}/../index.html`;
 
     await page.goto(url, { waitUntil: 'load' });
-    const gain = config.volume.initialValue / 100;
+    const gain = config.volume.initialValue;
     await page.evaluate(`joinConference('${roomName}', '${botName}', ${gain})`);
 
     return new JitsiBot(page);
@@ -60,6 +60,7 @@ export default class JitsiBot {
    * messages on join.
    */
   private async videoConferenceJoined(): Promise<void> {
+    this.setAvatarUrl(config.bot.avatarUrl);
     await this.exposeFunction(this.incomingMessage);
     await this.removeEventListener(this.incomingMessage, 'dummyMessageListener');
     await this.addEventListener(this.incomingMessage);
@@ -125,6 +126,7 @@ export default class JitsiBot {
           this.onAudioEnded();
         } else {
           this.page.evaluate('audio.src = ""');
+          this.setAvatarUrl(config.bot.avatarUrl);
         }
         break;
       case '!vol': {
@@ -168,7 +170,10 @@ export default class JitsiBot {
    * Responsible for adding the next item from the queue.
    */
   private async onAudioEnded(): Promise<void> {
-    if (!this.queue.length) return;
+    if (!this.queue.length) {
+      this.setAvatarUrl(config.bot.avatarUrl);
+      return;
+    }
     const track = this.queue.shift();
     this.playAudio(track);
   }
