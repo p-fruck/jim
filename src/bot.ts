@@ -1,5 +1,6 @@
 import { Browser, Page } from 'puppeteer-core';
-import youtubedl from 'youtube-dl-exec';
+import youtubedl, { YtResponse } from 'youtube-dl-exec';
+import config from './config';
 
 const youtubeConf = {
   dumpJson: true,
@@ -33,9 +34,12 @@ interface IParticipantKickedOut {
 type ExposableFunction = (arg0: any) => any;
 
 export class JitsiBot {
+  private queue = <YtResponse[]> [];
+
   private constructor(private page: Page) {
     void this.exposeListenerFunction(this.participantKickedOut);
     void this.exposeListenerFunction(this.videoConferenceJoined);
+    void this.exposeListenerFunction(this.onAudioEnded);
   }
 
   /**
@@ -79,15 +83,58 @@ export class JitsiBot {
   private async incomingMessage(event: IIncomingMessage): Promise<void> {
     const [cmd, ...params] = event.message.split(' ');
     switch (cmd) {
-      case '!play':
+      case '!add':
         if (params.length) {
-          await this.playAudio(params.join(' '));
+          if (this.queue.length >= config.playlist.maxSize) {
+            void this.sendMessage(`Sorry, I cannot remember more than ${config.playlist.maxSize} tracks :confounded_face:`)
+          }
+          const track = await this.fetchAudio(params.join(' '));
+          this.queue.push(track);
+          if(await this.page.evaluate('audio.ended || audio.currentTime === 0')) {
+            await this.onAudioEnded();
+          }
         }
+        break;
+      case '!clear':
+        this.queue = [];
+        break;
+      case '!help':
+        void this.sendMessages([
+          '!add <url|searchTerm> - Add track to queue',
+          '!clear - Clear the queue',
+          '!list - Show tracks in queue',
+          '!ping - Ping me!',
+          '!play <url|searchTerm> - Play track now, or resume if no params were given',
+        ]);
+        break;
+      case '!list':
+        void this.sendMessages(this.queue.map((track) => track.title));
+        break;
+      case '!pause':
+        await this.page.evaluate('void audio.pause()');
         break;
       case '!ping':
         await this.sendMessage('Pong!');
         break;
+      case '!play':
+        if (params.length === 0) {
+          await this.page.evaluate('void audio.play()');
+        } else {
+          const track = await this.fetchAudio(params.join(' '));
+          await this.playAudio(track);
+        }
+        break;
     }
+  }
+
+  /**
+   * Called each time the audio element ends its current track.
+   * Responsible for adding the next item from the queue.
+   */
+  private async onAudioEnded(): Promise<void> {
+    if (!this.queue.length) return;
+    const track = this.queue.shift();
+    this.playAudio(track);
   }
 
   /**
@@ -116,19 +163,22 @@ export class JitsiBot {
     await this.addEventListener(fn);
   }
 
-  async playAudio(videoUrl: string): Promise<void> {
-    const result = await youtubedl(videoUrl, youtubeConf);
-    const opus = result.formats.filter((format) => format.acodec === 'opus');
+  async fetchAudio(input: string): Promise<YtResponse> {
+    return youtubedl(input, youtubeConf);
+  }
+
+  async playAudio(track: YtResponse): Promise<void> {
+    const opus = track.formats.filter((format) => format.acodec === 'opus');
 
     if (!opus.length) {
       throw new Error('Couldn\'t play video due to nonfree codec');
     }
-    void this.sendMessage(`:notes: Playing ${result.title}`)
-    void this.setAvatarUrl(result.thumbnail);
+    void this.sendMessage(`:notes: Playing ${track.title}`)
+    void this.setAvatarUrl(track.thumbnail);
     try  {
       await this.page.evaluate(`playAudio('${opus[0].url}')`);
     } catch (err) {
-      console.error('Failed to play audio', videoUrl, opus[0], err);
+      console.error('Failed to play audio', track.url, opus[0], err);
     }
   }
 
@@ -137,6 +187,19 @@ export class JitsiBot {
     const elementHandle = await this.page.$('iframe');
     const frame = await elementHandle.contentFrame();
     await frame.type('#usermsg', msg);
+    await frame.click('.send-button');
+  }
+
+  async sendMessages(msgs: string[]): Promise<void> {
+    await this.page.waitForSelector('iframe');
+    const elementHandle = await this.page.$('iframe');
+    const frame = await elementHandle.contentFrame();
+    for (const msg of msgs) {
+      await frame.type('#usermsg', msg);
+      await this.page.keyboard.down('Shift');
+      await this.page.keyboard.press('Enter');
+      await this.page.keyboard.up('Shift');
+    }
     await frame.click('.send-button');
   }
 

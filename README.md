@@ -4,10 +4,11 @@ Say hello to Jim, the Jitsi Integrated Musicbot. He will assist you bringing goo
 
 ## Commands
 
-* `play` - Used to play a youtube video. Examples:
-    > !play https://link-to-your-video
-
-    > !play some youtube search term
+* !add <url|searchTerm> - Add track to queue
+* !clear - Clear the queue
+* !list - Show tracks in queue
+* !ping - Ping me!
+* !play <url|searchTerm> - Play track now, or resume if no params were given
 
 ## How to deploy
 
@@ -18,6 +19,7 @@ ROOM=<YourJitsiMeeting>
 BOT_EXECUTABLE=/usr/bin/chromium-browser
 BOT_HEADLESS=true
 BOT_NAME=DJ Jim
+PLAYLIST_MAX_SIZE=100
 ```
 
 Afterwards you can simply enter `npm run start` and you should see Jim appear in your meeting!
