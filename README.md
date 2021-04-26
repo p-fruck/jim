@@ -24,10 +24,10 @@
 </p>
 
 <p align="center">
-  <a href="#key-features">Key Features</a> •
-  <a href="#commands">Commands</a> •
-  <a href="#how-to-deploy">How to deploy</a> •
-  <a href="#license">License</a>
+  <a href="#tada-key-features">Key Features</a> •
+  <a href="#desktop_computer-commands">Commands</a> •
+  <a href="#rocket-how-to-deploy">How to deploy</a> •
+  <a href="#blue_book-license">License</a>
 </p>
 
 # :robot: Who is JIM?
