@@ -1,5 +1,6 @@
+/* eslint-disable */
 declare module 'youtube-dl-exec' {
-    import { ExecaChildProcess, Options } from "execa";
+    import { ExecaChildProcess, Options } from 'execa';
 
     interface YtFormat {
         asr: number,
