@@ -1,4 +1,7 @@
+/* eslint-disable */
 declare module 'youtube-dl-exec' {
+    import { ExecaChildProcess, Options } from 'execa';
+
     interface YtFormat {
         asr: number,
         filesize: number,
@@ -87,5 +90,6 @@ declare module 'youtube-dl-exec' {
         _filename: string
     }
 
-    export default function(url: string, flags?: unknown, options?: unknown): Promise<YtResponse>;
+    export default function(url: string, flags?: unknown, options?: Options<string>): Promise<YtResponse>;
+    export function raw(url: string, flags?: unknown, options?: Options<string>): ExecaChildProcess;
 }

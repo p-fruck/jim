@@ -1,5 +1,5 @@
 <div id="meet"></div>
-<audio id="audio" autoplay></audio>
+<audio id="audio" onended="onAudioEnded()" autoplay></audio>
 
 <script src='https://meet.jit.si/external_api.js'></script>
 
@@ -7,15 +7,69 @@
     let api; // The jitsi api object
     let isFirstPlay = true;
     const audio = document.getElementById('audio'); // the audio source object
+    let gainNode;
+
+    /**
+     * Dummy message listener, used to mark all messages as read on join
+     */
     function dummyMessageListener(event) {}
+
+    /**
+     * Function to get current gain value in percent
+     *
+     * @returns {number} - The gain in percent
+     */
+    function getGain() {
+        return Math.floor(gainNode.gain.value * 100);
+    }
+
+    /**
+     * Set the gain value
+     *
+     * @param {number} gain - The gain value in percent
+     */
+    function setGain(gain) {
+        gain = (gain / 100).toPrecision(3);
+        if (gain > 1) gainNode.gain.value = 1;
+        else if (gain < 0) gainNode.gain.value = 0;
+        else gainNode.gain.value = gain;
+    }
+
+    /**
+     * Initialize audio context with gain node
+     *
+     * @param {number} initialVolume - Initial volume level in percent
+     */
+    function initAudio(initialVolume) {
+        const iframeNav = api.getIFrame().contentWindow.navigator;
+
+        const audioContext = new AudioContext();
+        const track = audioContext.createMediaElementSource(audio);
+        gainNode = audioContext.createGain();
+        const destStream = audioContext.createMediaStreamDestination();
+        setGain(initialVolume);
+
+        track
+            .connect(gainNode)
+            .connect(destStream);
+
+        audio.onplay = function() {
+            iframeNav.mediaDevices.getUserMedia = async function() {
+                await audioContext.resume()
+                return destStream.stream;
+            };
+        };
+    }
+
     /**
      * Populates the meet container with a jitsi meet iframe and
      * joins a given conference
      *
      * @param {string} roomName - The room to join
      * @param {string} displayName - The name of the bot
+     * @param {number} initialVolume - Initial volume level in percent
      */
-    function joinConference(roomName, displayName) {
+    function joinConference(roomName, displayName, initialVolume) {
         const domain = 'meet.jit.si';
         const options = {
             userInfo: {
@@ -40,28 +94,8 @@
         };
 
         api = new JitsiMeetExternalAPI(domain, options);
-
         api.getIFrame().setAttribute('sandbox', ""); // allow-same-origin
-
-        const iframeNav = api.getIFrame().contentWindow.navigator;
-
-        const audioContext = new AudioContext();
-        const track = audioContext.createMediaElementSource(audio);
-        const gainNode = audioContext.createGain();
-        const destStream = audioContext.createMediaStreamDestination();
-
-        gainNode.gain.value = 0.2;
-
-        track
-            .connect(gainNode)
-            .connect(destStream);
-
-        audio.onplay = function() {
-            iframeNav.mediaDevices.getUserMedia = async function() {
-                await audioContext.resume()
-                return destStream.stream;
-            };
-        };
+        initAudio(initialVolume);
     }
 
     /**
@@ -70,10 +104,6 @@
      * @param {string} url - The url to play back
      */
     async function playAudio(url) {
-        console.warn('Trying to play back', url);
-        // if (audioContext.state === 'running') {
-        //     await audioContext.suspend();
-        // }
         await audio.pause();
         audio.setAttribute("src", url);
         await audio.play();
