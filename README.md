@@ -5,6 +5,15 @@
   Hi, I'm JIM!
   <br />
 </h1>
+<div align="center">
+    <small>Built with ❤️ and 🍺 by
+        <a href="https://github.com/piuswalter">Pius</a>,
+        <a href="https://github.com/p-fruck">Philipp</a> and
+        <a href="https://github.com/p-fruck/jim/graphs/contributors">contributors</a>
+    </small>
+</div>
+
+---
 
 <h4 align="center">A small music bot for your meeting in <a href="https://jitsi.org/" target="_blank">Jitsi</a>.</h4>
 
