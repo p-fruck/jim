@@ -64,11 +64,11 @@ export class JitsiBot {
    * messages on join.
    */
   private async videoConferenceJoined(): Promise<void> {
-    setTimeout(async () => {
-      await this.exposeFunction(this.incomingMessage);
-      await this.removeEventListener(this.incomingMessage, 'dummyMessageListener');
-      await this.addEventListener(this.incomingMessage);
-    }, 10000); // ToDo: Fix timing problem
+    await this.exposeFunction(this.incomingMessage);
+    await this.removeEventListener(this.incomingMessage, 'dummyMessageListener');
+    await this.addEventListener(this.incomingMessage);
+    // open chat, so messages can be sent
+    await this.page.evaluate('api.executeCommand("toggleChat")');
   }
 
   /**
@@ -78,10 +78,15 @@ export class JitsiBot {
    */
   private async incomingMessage(event: IIncomingMessage): Promise<void> {
     const [cmd, ...params] = event.message.split(' ');
-    if (cmd === '!play') {
-      if (params.length) {
-        await this.playAudio(params.join(' '));
-      }
+    switch (cmd) {
+      case '!play':
+        if (params.length) {
+          await this.playAudio(params.join(' '));
+        }
+        break;
+      case '!ping':
+        await this.sendMessage('Pong!');
+        break;
     }
   }
 
@@ -112,17 +117,30 @@ export class JitsiBot {
   }
 
   async playAudio(videoUrl: string): Promise<void> {
-    console.log('Playing Audio!')
     const result = await youtubedl(videoUrl, youtubeConf);
     const opus = result.formats.filter((format) => format.acodec === 'opus');
+
     if (!opus.length) {
       throw new Error('Couldn\'t play video due to nonfree codec');
     }
+    void this.sendMessage(`:notes: Playing ${result.title}`)
+    void this.setAvatarUrl(result.thumbnail);
     try  {
       await this.page.evaluate(`playAudio('${opus[0].url}')`);
     } catch (err) {
-      // Some links cannot be played back --> Issue with media codec?
-      console.error('Failed to play audio', videoUrl, opus[0], err)
+      console.error('Failed to play audio', videoUrl, opus[0], err);
     }
+  }
+
+  async sendMessage(msg: string): Promise<void> {
+    await this.page.waitForSelector('iframe');
+    const elementHandle = await this.page.$('iframe');
+    const frame = await elementHandle.contentFrame();
+    await frame.type('#usermsg', msg);
+    await frame.click('.send-button');
+  }
+
+  async setAvatarUrl(url: string): Promise<void> {
+    await this.page.evaluate(`api.executeCommand('avatarUrl', '${url}')`);
   }
 }
