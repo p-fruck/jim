@@ -1,5 +1,6 @@
 import { Browser, Page } from 'puppeteer-core';
 import youtubedl, { YtResponse } from 'youtube-dl-exec';
+import Mutex from './mutex';
 import config from './config';
 
 const youtubeConf = {
@@ -35,6 +36,7 @@ type ExposableFunction = (arg0: any) => any;
 
 export class JitsiBot {
   private queue = <YtResponse[]> [];
+  private messageMutex = new Mutex();
 
   private constructor(private page: Page) {
     void this.exposeListenerFunction(this.participantKickedOut);
@@ -218,14 +220,19 @@ export class JitsiBot {
     await this.page.waitForSelector('iframe');
     const elementHandle = await this.page.$('iframe');
     const frame = await elementHandle.contentFrame();
+
+    const unlock = await this.messageMutex.acquire();
     await frame.type('#usermsg', msg);
     await frame.click('.send-button');
+    unlock();
   }
 
   async sendMessages(msgs: string[]): Promise<void> {
     await this.page.waitForSelector('iframe');
     const elementHandle = await this.page.$('iframe');
     const frame = await elementHandle.contentFrame();
+
+    const unlock = await this.messageMutex.acquire();
     for (const msg of msgs) {
       await frame.type('#usermsg', msg);
       await this.page.keyboard.down('Shift');
@@ -233,6 +240,7 @@ export class JitsiBot {
       await this.page.keyboard.up('Shift');
     }
     await frame.click('.send-button');
+    unlock();
   }
 
   async setAvatarUrl(url: string): Promise<void> {
