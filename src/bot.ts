@@ -98,6 +98,7 @@ export default class JitsiBot {
           '!list - Show tracks in queue',
           '!ping - Ping me!',
           '!play <url|searchTerm> - Play track now, or resume if no params were given',
+          '!skip - Skip current track and play next',
           '!vol - Retrieve current volume level',
           '!vol <+|-|[0-100]> - increment/decrement/set volume level',
         ]);
@@ -117,6 +118,13 @@ export default class JitsiBot {
         } else {
           const track = await this.fetchAudio(params.join(' '));
           await this.playAudio(track);
+        }
+        break;
+      case '!skip':
+        if (this.queue.length) {
+          this.onAudioEnded();
+        } else {
+          this.page.evaluate('audio.src = ""');
         }
         break;
       case '!vol': {
