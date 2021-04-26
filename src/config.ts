@@ -7,6 +7,8 @@ dotenvConfig();
 // default to production environment
 env.NODE_ENV = env.NODE_ENV || 'PRODUCTION';
 
+const readInt = (name: string) => parseInt(env[name], 10);
+
 const readOrFail = (name: string) => {
     if (env[name]) return env[name];
     console.error(`Missing variable in .env - ${name}`);
@@ -19,5 +21,8 @@ export default {
         executable: <string> readOrFail('BOT_EXECUTABLE'),
         headless: <boolean> (env.BOT_HEADLESS === 'true'),
         name: <string> env.BOT_NAME || 'DJ Jim',
+    },
+    playlist: {
+        maxSize: <number> readInt('PLAYLIST_MAX_SIZE') || 100
     }
 }
