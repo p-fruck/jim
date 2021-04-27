@@ -2,17 +2,20 @@ import { Browser, Page } from 'puppeteer-core';
 import youtubedl, { YtResponse } from 'youtube-dl-exec';
 import Mutex from './mutex';
 import config from './config';
-import { IIncomingMessage, IParticipantKickedOut } from './models/jitsi.interface';
+import { IParticipantKickedOut } from './models/jitsi.interface';
+import CommandService from './command.service';
 
 // eslint-disable-next-line no-unused-vars
 type ExposableFunction = (arg0: any) => any;
 
 export default class JitsiBot {
+  public cmdService = new CommandService(this);
+
   private messageMutex = new Mutex();
 
-  private page: Page;
+  public page: Page;
 
-  private queue = <YtResponse[]> [];
+  public queue = <YtResponse[]> [];
 
   private youtubeConf = {
     dumpJson: true,
@@ -61,115 +64,18 @@ export default class JitsiBot {
    */
   private async videoConferenceJoined(): Promise<void> {
     this.setAvatarUrl(config.bot.avatarUrl);
-    await this.exposeFunction(this.incomingMessage);
-    await this.removeEventListener(this.incomingMessage, 'dummyMessageListener');
-    await this.addEventListener(this.incomingMessage);
+    await this.exposeFunction(this.cmdService.incomingMessage, this.cmdService);
+    await this.removeEventListener(this.cmdService.incomingMessage, 'dummyMessageListener');
+    await this.addEventListener(this.cmdService.incomingMessage);
     // open chat, so messages can be sent
     await this.page.evaluate('api.executeCommand("toggleChat")');
-  }
-
-  /**
-   * Listen to incoming chat messages. Used to detect bot commands.
-   *
-   * @param event - The message event
-   */
-  private async incomingMessage(event: IIncomingMessage): Promise<void> {
-    const [cmd, ...params] = event.message.split(' ');
-    switch (cmd) {
-      case '!add':
-        if (params.length) {
-          if (this.queue.length >= config.playlist.maxSize) {
-            this.sendMessage(`Sorry, I cannot remember more than ${config.playlist.maxSize} tracks :confounded_face:`);
-          }
-          const track = await this.fetchAudio(params.join(' '));
-          this.queue.push(track);
-          if (await this.page.evaluate('audio.ended || audio.currentTime === 0')) {
-            await this.onAudioEnded();
-          }
-        }
-        break;
-      case '!clear':
-        this.queue = [];
-        break;
-      case '!help':
-        this.sendMessages([
-          '!add <url|searchTerm> - Add track to queue',
-          '!clear - Clear the queue',
-          '!help - Print the help menu',
-          '!list - Show tracks in queue',
-          '!ping - Ping me!',
-          '!play <url|searchTerm> - Play track now, or resume if no params were given',
-          '!skip - Skip current track and play next',
-          '!vol - Retrieve current volume level',
-          '!vol <+|-|[0-100]> - increment/decrement/set volume level',
-        ]);
-        break;
-      case '!list':
-        this.sendMessages(this.queue.map((track) => track.title));
-        break;
-      case '!pause':
-        await this.page.evaluate('void audio.pause()');
-        break;
-      case '!ping':
-        await this.sendMessage('Pong!');
-        break;
-      case '!play':
-        if (params.length === 0) {
-          await this.page.evaluate('void audio.play()');
-        } else {
-          const track = await this.fetchAudio(params.join(' '));
-          await this.playAudio(track);
-        }
-        break;
-      case '!skip':
-        if (this.queue.length) {
-          this.onAudioEnded();
-        } else {
-          this.page.evaluate('audio.src = ""');
-          this.setAvatarUrl(config.bot.avatarUrl);
-        }
-        break;
-      case '!vol': {
-        let gain = <number> await this.page.evaluate('getGain()');
-        if (params.length === 0) {
-          this.sendMessage(`Current volume level equals ${gain}%`);
-        } else {
-          const { stepSize } = config.volume;
-          switch (true) {
-            case /^(0|100|[1-9][0-9]?)$/.test(params[0]):
-              gain = parseInt(params[0], 10);
-              break;
-            case /^\++$/.test(params[0]):
-              gain += params[0].length * stepSize;
-              break;
-            case /^-+$/.test(params[0]):
-              gain -= params[0].length * stepSize;
-              break;
-            default:
-              this.sendMessage(
-                'I did not understand that. Please use !vol to retrieve some '
-                + 'volume information, !vol [0-100] to set the volume level '
-                + 'directly or !vol (+|-), where each plus or minus increments/'
-                + `decrements the total gain by ${stepSize}`,
-              );
-              return;
-          }
-          this.page.evaluate(`setGain(${gain})`);
-        }
-        break;
-      }
-      default:
-        if (cmd.startsWith('!')) {
-          this.sendMessage('Are you talking to me? :thinking: Try !help :bulb:');
-        }
-    }
   }
 
   /**
    * Called each time the audio element ends its current track.
    * Responsible for adding the next item from the queue.
    */
-  private async onAudioEnded(): Promise<void> {
+  async onAudioEnded(): Promise<void> {
     if (!this.queue.length) {
       this.setAvatarUrl(config.bot.avatarUrl);
       return;
@@ -194,9 +100,10 @@ export default class JitsiBot {
    * Expose a function to the frontend
    *
    * @param fn - The function to expose
+   * @param that - Optional binding scope, default is this
    */
-  private async exposeFunction(fn: ExposableFunction): Promise<void> {
-    await this.page.exposeFunction(fn.name, fn.bind(this));
+  private async exposeFunction(fn: ExposableFunction, scope?: any): Promise<void> {
+    await this.page.exposeFunction(fn.name, fn.bind(scope || this));
   }
 
   /**

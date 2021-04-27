@@ -8,6 +8,7 @@
 <div align="center">
     <small>Built with ❤️ and 🍺 by
         <a href="https://github.com/piuswalter">Pius</a>,
+        <a href="https://github.com/tjarbo">Tjark</a>,
         <a href="https://github.com/p-fruck">Philipp</a> and
         <a href="https://github.com/p-fruck/jim/graphs/contributors">contributors</a>
     </small>
@@ -87,4 +88,4 @@ Afterwards you can simply enter `npm run start` and you should see JIM appear in
 
 ## :blue_book: License
 
-JIM is licensed under `GNU Affero General Public License v3.0`!  
+JIM is licensed under `GNU Affero General Public License v3.0`!
