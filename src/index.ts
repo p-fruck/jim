@@ -11,7 +11,6 @@ async function startBrowser(): Promise<void> {
       '--disable-web-security', // enable playback of cross origin media/ressources
       '--disable-features=IsolateOrigins,site-per-process', // allow to access cross-origin iframe
     ],
-    ignoreDefaultArgs: ['--mute-audio'],
     headless,
     executablePath: executable,
   });
