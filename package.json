@@ -9,7 +9,8 @@
     "start": "ts-node ./src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint \"./src/**/*.{js,ts}\" --quiet",
-    "lint:fix": "eslint \"./src/**/*.{js,ts}\" --quiet --fix"
+    "lint:fix": "eslint \"./src/**/*.{js,ts}\" --quiet --fix",
+    "gen:cmd": "ts-node generate_commands.ts"
   },
   "author": "",
   "license": "ISC",

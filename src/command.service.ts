@@ -14,19 +14,22 @@ export default class CommandService {
 
   public commands: { [key: string]: IJimCommand } = {};
 
-  constructor(jim: JitsiBot) {
+  private constructor(jim: JitsiBot) {
     this.jim = jim;
-    this.registerDefaultCommands();
-    this.incomingMessage.bind(this);
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async registerDefaultCommands() {
+  static async init(jim: JitsiBot) {
+    const promises = [];
     const cmdDir = path.join(__dirname, '/commands');
+    const service = new CommandService(jim);
     fs
       .readdirSync(cmdDir)
       .filter((filePath) => /.*\.cmd\.[jt]s/.test(filePath))
-      .forEach((filePath) => this.registerCommand(cmdDir, filePath));
+      .forEach((filePath) => promises.push(service.registerCommand(cmdDir, filePath)));
+
+    await Promise.all(promises);
+    return service;
   }
 
   async registerCommand(cmdDir: string, filePath: string) {

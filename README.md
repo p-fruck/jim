@@ -50,17 +50,17 @@ You would like to know what my key features are? - I will assist you bringing go
 
 ## :desktop_computer: Commands
 
-| Command                   | Function                                          |
-| ------------------------- | ------------------------------------------------- |
-| `!add <url\|searchTerm>`  | Add track to queue                                |
-| `!clear`                  | Clear the queue                                   |
-| `!help`                   | Print the help menu                               |
-| `!list`                   | Show tracks in queue                              |
-| `!ping`                   | Ping me!                                          |
-| `!play <url\|searchTerm>` | Play track now, or resume if no params were given |
-| `!skip`                   | Skip current track and play next                  |
-| `!vol`                    | Retrieve current volume level                     |
-| `!vol <+\|-\|[0-100]>`    | Increment, decrement or set volume level          |
+| Command | Description |
+| ------- | ----------- |
+|`!add`|\<url\|searchTerm\> - Add track to queue|
+|`!clear`|Clear the queue|
+|`!help`|Display the help menu|
+|`!list`|Show tracks in queue|
+|`!pause`|Pause the current track|
+|`!ping`|Emits a life signal|
+|`!play`|\<url\|searchTerm\> - Play track now, or resume if no params were given|
+|`!skip`|Skip current track and play next one|
+|`!vol`|Retrieve the current volume level if no params where given or adjust it to your needs by setting a volume level between 0 and 100, or bysetting a variable amount of + or -|
 
 
 ## :rocket: How to deploy

@@ -9,7 +9,7 @@ import CommandService from './command.service';
 type ExposableFunction = (arg0: any) => any;
 
 export default class JitsiBot {
-  public cmdService = new CommandService(this);
+  public cmdService: CommandService;
 
   private messageMutex = new Mutex();
 
@@ -54,7 +54,9 @@ export default class JitsiBot {
     const gain = config.volume.initialValue;
     await page.evaluate(`joinConference('${roomName}', '${botName}', ${gain})`);
 
-    return new JitsiBot(page);
+    const bot = new JitsiBot(page);
+    bot.cmdService = await CommandService.init(bot);
+    return bot;
   }
 
   /**
