@@ -1,9 +1,9 @@
-import puppeteer from 'puppeteer-core';
+import puppeteer from 'puppeteer';
 import JitsiBot from './bot';
 import config from './config';
 
 async function startBrowser(): Promise<void> {
-  const { room, bot: { executable, headless, name } } = config;
+  const { room, bot: { headless, name } } = config;
 
   const browser = await puppeteer.launch({
     args: [
@@ -12,7 +12,6 @@ async function startBrowser(): Promise<void> {
       '--disable-features=IsolateOrigins,site-per-process', // allow to access cross-origin iframe
     ],
     headless,
-    executablePath: executable,
   });
 
   await JitsiBot.init(browser, room, name);

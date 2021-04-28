@@ -17,7 +17,6 @@ const readOrFail = (name: string) => {
 export default {
   room: <string>readOrFail('ROOM'),
   bot: {
-    executable: <string>readOrFail('BOT_EXECUTABLE'),
     headless: <boolean>(env.BOT_HEADLESS === 'true'),
     avatarUrl: <string> env.BOT_AVATAR_URL
       || 'https://raw.githubusercontent.com/p-fruck/jim/master/src/assets/logo.svg',

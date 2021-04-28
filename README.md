@@ -69,7 +69,6 @@ You have to create a `.env` file inside this repository containing the following
 
 ```config
 ROOM=<YourJitsiMeeting>
-BOT_EXECUTABLE=/usr/bin/chromium-browser
 BOT_HEADLESS=true
 BOT_NAME=DJ Jim
 BOT_AVATAR_URL=https://raw.githubusercontent.com/p-fruck/jim/master/src/assets/logo.svg
