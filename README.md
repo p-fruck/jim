@@ -65,37 +65,29 @@ You would like to know what my key features are? - I will assist you bringing go
 
 ## :rocket: How to deploy
 
-You have to create a `.env` file inside this repository containing the following variables
-
-```config
-ROOM=<YourJitsiMeeting>
-BOT_HEADLESS=false
-BOT_NAME=DJ Jim
-BOT_AVATAR_URL=https://raw.githubusercontent.com/p-fruck/jim/master/src/assets/logo.svg
-PLAYLIST_MAX_SIZE=100
-VOLUME_INITIAL_VALUE=20
-VOLUME_STEP_SIZE=10
-```
-
-There is just one thing to do for you before JIM is ready. Set the `ROOM` to the name of your meeting.
-
-Change the other values so that it fits your preferences.
-
-If you would like to give JIM some other profile image, set the `BOT_AVATAR_URL`. This must be some kind of URL available for public read. While JIM plays music, he displays the thumbnail of the video and not the profile image.
-
-Afterwards you can simply enter `npm run start` and you should see JIM appear in your meeting!
-
-You can also containerize the deployment using
+You can simply build and deploy jim as a container using
 
 ```sh
-docker build -t jim .
-docker run --rm --init \
-  --cap-add=SYS_ADMIN \
-  -e BOT_HEADLESS=true \
-  -e ROOM=YourJitsiRoom \
-  --name=jim \
-  jim
+docker build -t jim https://github.com/p-fruck/jim.git
+docker run --rm -d --init --cap-add=SYS_ADMIN --name=jim -e ROOM=YourJitsiRoom jim
 ```
+
+You can even mount a .env file to store your environment variables by adding `-v .env:.env` to the docker command.
+
+Alternatively, you can start the bot without any sort of container-technology, using
+`npm ci && npm run start`.
+
+Again, you have to create a `.env` file containing your environment variables. A list off all available variables can be found below, but only `ROOM` is required:
+
+| Variable               | Example Value        | Description |
+| ---------------------- | -------------------- | ----------- |
+| `ROOM`                 | ExampleJitsiRoom1234 | Name of the room to join |
+| `BOT_HEADLESS`         | false                | Whether or not the bot should be launched in headless mode    |
+| `BOT_NAME`             | DJ Jim               | This is the display name of your bot |
+| `BOT_AVATAR_URL`       | https://domain/logo  | A link to a publicly accesible profile picture for the jim |
+| `PLAYLIST_MAX_SIZE`    | 100                  | The maximum amount of songs that can be added to a playlist |
+| `VOLUME_INITIAL_VALUE` | 20                   | The initial music volume in percent
+| `VOLUME_STEP_SIZE`     | 10                   | Default step size in percent, utilized by eg `vol ++` |
 
 ## :blue_book: License
 
