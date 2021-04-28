@@ -161,6 +161,7 @@ export default class JitsiBot {
     try {
       await this.page.evaluate(`playAudio('${opus[0].url}')`);
     } catch (err) {
+      await this.sendMessage('Sorry, I wasn\'t able to play this track :confounded_face:');
       throw new Error(`Failed to play audio - ${track.url},  ${err}`);
     }
   }
