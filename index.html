@@ -5,7 +5,6 @@
 
 <script>
     let api; // The jitsi api object
-    let isFirstPlay = true;
     const audio = document.getElementById('audio'); // the audio source object
     let gainNode;
 
@@ -53,11 +52,9 @@
             .connect(gainNode)
             .connect(destStream);
 
-        audio.onplay = function() {
-            iframeNav.mediaDevices.getUserMedia = async function() {
-                await audioContext.resume()
-                return destStream.stream;
-            };
+        iframeNav.mediaDevices.getUserMedia = async function() {
+            await audioContext.resume()
+            return destStream.stream;
         };
     }
 
@@ -108,15 +105,5 @@
         await audio.pause();
         audio.setAttribute("src", url);
         await audio.play();
-
-        if (isFirstPlay) {
-            // current audio device has to be refreshed to recognize stream
-            const devices = await api.getAvailableDevices();
-            if (devices.audioInput.length) {
-                const [{ label, deviceId }] = devices.audioInput;
-                api.setAudioInputDevice(label, deviceId);
-            }
-            isFirstPlay = false;
-        }
     }
 </script>
