@@ -19,7 +19,8 @@ COPY package*.json index.html ./
 RUN npm ci
 
 USER root
-RUN apt update && apt install -y libnss3-dev libgdk-pixbuf2.0-dev libgtk-3-dev libxss-dev libasound2
+RUN apt update && apt install -y python3 ca-certificates libnss3-dev libgdk-pixbuf2.0-dev libgtk-3-dev libxss-dev libasound2
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Add rootless user with access to audio and video
 RUN groupadd -r jim && useradd -r -g jim -G audio,video jim \
