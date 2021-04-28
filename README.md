@@ -69,7 +69,7 @@ You have to create a `.env` file inside this repository containing the following
 
 ```config
 ROOM=<YourJitsiMeeting>
-BOT_HEADLESS=true
+BOT_HEADLESS=false
 BOT_NAME=DJ Jim
 BOT_AVATAR_URL=https://raw.githubusercontent.com/p-fruck/jim/master/src/assets/logo.svg
 PLAYLIST_MAX_SIZE=100
@@ -84,6 +84,18 @@ Change the other values so that it fits your preferences.
 If you would like to give JIM some other profile image, set the `BOT_AVATAR_URL`. This must be some kind of URL available for public read. While JIM plays music, he displays the thumbnail of the video and not the profile image.
 
 Afterwards you can simply enter `npm run start` and you should see JIM appear in your meeting!
+
+You can also containerize the deployment using
+
+```sh
+docker build -t jim .
+docker run --rm --init \
+  --cap-add=SYS_ADMIN \
+  -e BOT_HEADLESS=true \
+  -e ROOM=YourJitsiRoom \
+  --name=jim \
+  jim
+```
 
 ## :blue_book: License
 
