@@ -16,7 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^8.2.0",
-    "puppeteer-core": "^8.0.0",
+    "puppeteer": "^9.0.0",
     "youtube-dl-exec": "^1.2.1"
   },
   "devDependencies": {

@@ -25,7 +25,7 @@ export default class CommandService {
     const service = new CommandService(jim);
     fs
       .readdirSync(cmdDir)
-      .filter((filePath) => /.*\.cmd\.[jt]s/.test(filePath))
+      .filter((filePath) => /.*\.cmd\.[jt]s$/.test(filePath))
       .forEach((filePath) => promises.push(service.registerCommand(cmdDir, filePath)));
 
     await Promise.all(promises);

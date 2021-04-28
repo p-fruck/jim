@@ -1,4 +1,4 @@
-import { Browser, Frame, Page } from 'puppeteer-core';
+import { Browser, Frame, Page } from 'puppeteer';
 import youtubedl, { YtResponse } from 'youtube-dl-exec';
 import Mutex from './mutex';
 import config from './config';
