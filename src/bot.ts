@@ -1,8 +1,8 @@
-import { Browser, Page } from 'puppeteer-core';
+import { Browser, Frame, Page } from 'puppeteer-core';
 import youtubedl, { YtResponse } from 'youtube-dl-exec';
 import Mutex from './mutex';
 import config from './config';
-import { IParticipantKickedOut } from './models/jitsi.interface';
+import { IIncomingMessage, IParticipantKickedOut } from './models/jitsi.interface';
 import CommandService from './command.service';
 
 // eslint-disable-next-line no-unused-vars
@@ -170,14 +170,14 @@ export default class JitsiBot {
    *
    * @param {string} msg - The message to send
    */
-  async sendMessage(msg: string): Promise<void> {
+  async sendMessage(msg: string, event?: IIncomingMessage): Promise<void> {
     await this.page.waitForSelector('iframe');
     const elementHandle = await this.page.$('iframe');
     const frame = await elementHandle.contentFrame();
 
     const unlock = await this.messageMutex.acquire();
     await frame.type('#usermsg', msg);
-    await frame.click('.send-button');
+    await this.sendMessageHandleScope(frame, event);
     unlock();
   }
 
@@ -186,7 +186,7 @@ export default class JitsiBot {
    *
    * @param {string[]} msgs - Lines to send
    */
-  async sendMessages(msgs: string[]): Promise<void> {
+  async sendMessages(msgs: string[], event?: IIncomingMessage): Promise<void> {
     await this.page.waitForSelector('iframe');
     const elementHandle = await this.page.$('iframe');
     const frame = await elementHandle.contentFrame();
@@ -201,8 +201,23 @@ export default class JitsiBot {
       await this.page.keyboard.up('Shift');
       /* eslint-enable no-await-in-loop */
     }
-    await frame.click('.send-button');
+    await this.sendMessageHandleScope(frame, event);
     unlock();
+  }
+
+  private async sendMessageHandleScope(frame: Frame, event?: IIncomingMessage): Promise<void> {
+    if (event?.privateMessage) {
+      // Attention: Typo in Jitsi api!
+      await this.page.evaluate(`api.executeCommand('intiatePrivateChat', '${event.from}')`);
+      await frame.click('.send-button');
+      await this.page.evaluate('api.executeCommand("cancelPrivateChat")');
+    } else {
+      await frame.click('.send-button');
+      const sendToGroup = await frame.$('#modal-dialog-cancel-button');
+      if (sendToGroup) {
+        await sendToGroup.click();
+      }
+    }
   }
 
   /**

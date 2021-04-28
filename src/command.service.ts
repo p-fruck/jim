@@ -5,7 +5,7 @@ import { IIncomingMessage } from './models/jitsi.interface';
 
 export interface IJimCommand {
   // eslint-disable-next-line no-unused-vars
-  execute(jim: JitsiBot, params: string[]): void | Promise<void>;
+  execute(jim: JitsiBot, params: string[], event: IIncomingMessage): void | Promise<void>;
   description: string;
 }
 
@@ -42,7 +42,7 @@ export default class CommandService {
     if (!cmd.startsWith('!')) return;
     const command = this.commands[cmd];
     if (command) {
-      command.execute(this.jim, params);
+      command.execute(this.jim, params, event);
     } else {
       this.jim.sendMessage('Are you talking to me? :thinking: Try !help :bulb:');
     }
