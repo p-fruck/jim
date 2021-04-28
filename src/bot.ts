@@ -151,6 +151,10 @@ export default class JitsiBot {
    * @param {YtResponse} track - The track to play
    */
   async playAudio(track: YtResponse): Promise<void> {
+    if (!track?.url) {
+      this.sendMessage('This video doesn\'t seem to be available :confused:');
+      return;
+    }
     const opus = track.formats.filter((format) => format.acodec === 'opus');
 
     if (!opus.length) {
@@ -161,7 +165,7 @@ export default class JitsiBot {
     try {
       await this.page.evaluate(`playAudio('${opus[0].url}')`);
     } catch (err) {
-      await this.sendMessage('Sorry, I wasn\'t able to play this track :confounded_face:');
+      await this.sendMessage('Sorry, I wasn\'t able to play this track :confounded_face: Please check your logs and report this bug :bug:');
       throw new Error(`Failed to play audio - ${track.url},  ${err}`);
     }
   }
