@@ -5,7 +5,6 @@
 
 <script>
     let api; // The jitsi api object
-    let isFirstPlay = true;
     const audio = document.getElementById('audio'); // the audio source object
     let gainNode;
 
@@ -53,11 +52,9 @@
             .connect(gainNode)
             .connect(destStream);
 
-        audio.onplay = function() {
-            iframeNav.mediaDevices.getUserMedia = async function() {
-                await audioContext.resume()
-                return destStream.stream;
-            };
+        iframeNav.mediaDevices.getUserMedia = async function() {
+            await audioContext.resume()
+            return destStream.stream;
         };
     }
 
@@ -82,15 +79,29 @@
             configOverwrite: {
                 startWithAudioMuted: false,
                 startWithVideoMuted: true,
-
                 startAudioOnly: true,
-                // startSilent: true, // further testing required
                 audioQuality: {
                     stereo: true,
                     opusMaxAverageBitrate: 510000 // Value to fit the 6000 to 510000 range.
                 },
                 prejoinPageEnabled: false,
-            }
+                notifications: [],
+            },
+            // disable everything unused
+            disableAudioLevels: true,
+            enableNoAudioDetection: false,
+            enableNoisyMicDetection: false,
+            disableResponsiveTiles: true,
+            gatherStats: false,
+            disableThirdPartyRequests: true,
+            analytics: {
+                rtcstatsEnabled: false,
+            },
+            disableJoinLeaveSounds: true,
+            disableTileView: true,
+            hideConferenceSubject: true,
+            hideConferenceTimer: true,
+            hideParticipantsStats: true,
         };
 
         api = new JitsiMeetExternalAPI(domain, options);
@@ -107,15 +118,5 @@
         await audio.pause();
         audio.setAttribute("src", url);
         await audio.play();
-
-        if (isFirstPlay) {
-            // current audio device has to be refreshed to recognize stream
-            const devices = await api.getAvailableDevices();
-            if (devices.audioInput.length) {
-                const [{ label, deviceId }] = devices.audioInput;
-                api.setAudioInputDevice(label, deviceId);
-            }
-            isFirstPlay = false;
-        }
     }
 </script>

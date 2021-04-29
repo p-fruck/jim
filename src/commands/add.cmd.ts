@@ -1,12 +1,13 @@
 import JitsiBot from '../bot';
 import { IJimCommand } from '../command.service';
 import config from '../config';
+import { IIncomingMessage } from '../models/jitsi.interface';
 
 export default <IJimCommand> {
-  execute: async (jim: JitsiBot, params: string[]) => {
+  execute: async (jim: JitsiBot, params: string[], event: IIncomingMessage) => {
     if (params.length) {
       if (jim.queue.length >= config.playlist.maxSize) {
-        jim.sendMessage(`Sorry, I cannot remember more than ${config.playlist.maxSize} tracks :confounded_face:`);
+        jim.sendMessage(`Sorry, I cannot remember more than ${config.playlist.maxSize} tracks :confounded_face:`, event);
       }
       const track = await jim.fetchAudio(params.join(' '));
       jim.queue.push(track);
@@ -14,7 +15,7 @@ export default <IJimCommand> {
         await jim.onAudioEnded();
       }
     }
-    jim.sendMessages(jim.queue.map((track) => track.title));
+    jim.sendMessages(jim.queue.map((track) => track.title), event);
   },
   description: '<url|searchTerm> - Add track to queue',
 };

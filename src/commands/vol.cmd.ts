@@ -1,12 +1,13 @@
 import JitsiBot from '../bot';
 import { IJimCommand } from '../command.service';
 import config from '../config';
+import { IIncomingMessage } from '../models/jitsi.interface';
 
 export default <IJimCommand> {
-  execute: async (jim: JitsiBot, params: string[]) => {
+  execute: async (jim: JitsiBot, params: string[], event: IIncomingMessage) => {
     let gain = <number> await jim.page.evaluate('getGain()');
     if (params.length === 0) {
-      jim.sendMessage(`Current volume level equals ${gain}%`);
+      jim.sendMessage(`Current volume level equals ${gain}%`, event);
     } else {
       const { stepSize } = config.volume;
       switch (true) {
@@ -25,6 +26,7 @@ export default <IJimCommand> {
             + 'volume information, !vol [0-100] to set the volume level '
             + 'directly or !vol (+|-), where each plus or minus increments/'
             + `decrements the total gain by ${stepSize}`,
+            event,
           );
           return;
       }
