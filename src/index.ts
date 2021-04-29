@@ -11,6 +11,10 @@ async function startBrowser(): Promise<void> {
       '--use-fake-device-for-media-stream', // use fake microphone
       '--disable-web-security', // enable playback of cross origin media/ressources
       '--disable-features=IsolateOrigins,site-per-process', // allow to access cross-origin iframe
+      // performance related
+      '--disable-accelerated-2d-canvas',
+      '--single-process',
+      '--disable-gpu',
     ],
     headless,
   });

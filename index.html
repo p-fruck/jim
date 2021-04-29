@@ -79,16 +79,29 @@
             configOverwrite: {
                 startWithAudioMuted: false,
                 startWithVideoMuted: true,
-
                 startAudioOnly: true,
-                // startSilent: true, // further testing required
                 audioQuality: {
                     stereo: true,
                     opusMaxAverageBitrate: 510000 // Value to fit the 6000 to 510000 range.
                 },
                 prejoinPageEnabled: false,
                 notifications: [],
-            }
+            },
+            // disable everything unused
+            disableAudioLevels: true,
+            enableNoAudioDetection: false,
+            enableNoisyMicDetection: false,
+            disableResponsiveTiles: true,
+            gatherStats: false,
+            disableThirdPartyRequests: true,
+            analytics: {
+                rtcstatsEnabled: false,
+            },
+            disableJoinLeaveSounds: true,
+            disableTileView: true,
+            hideConferenceSubject: true,
+            hideConferenceTimer: true,
+            hideParticipantsStats: true,
         };
 
         api = new JitsiMeetExternalAPI(domain, options);
