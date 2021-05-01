@@ -119,4 +119,23 @@
         audio.setAttribute("src", url);
         await audio.play();
     }
+
+    /**
+     * ASCII to Unicode (decode Base64 to original data)
+     * @param {string} b64 - Base64 encoded input
+     * @return {string} - unicode compatible output
+     */
+    function atou(b64) {
+        return decodeURIComponent(escape(atob(b64)));
+    }
+
+    /**
+     * Set input of the message field. The sending functionality will be
+     * simulated by the browser, since there's no jitsi endpoint to do so
+     *
+     * @param {string} b64 - message encoded as base64
+     */
+    function setMessage(b64) {
+        api.getIFrame().contentWindow.document.getElementById('usermsg').value = atou(b64);
+    }
 </script>

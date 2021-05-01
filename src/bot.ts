@@ -175,6 +175,7 @@ export default class JitsiBot {
    * Sends a chat message
    *
    * @param {string} msg - The message to send
+   * @param {IIncomingMessage} event - Optional messaging event
    */
   async sendMessage(msg: string, event?: IIncomingMessage): Promise<void> {
     await this.page.waitForSelector('iframe');
@@ -182,7 +183,10 @@ export default class JitsiBot {
     const frame = await elementHandle.contentFrame();
 
     const unlock = await this.messageMutex.acquire();
-    await frame.type('#usermsg', msg);
+    const b64 = Buffer.from(msg).toString('base64');
+    await this.page.evaluate(`setMessage('${b64}')`);
+    // work around missing messaging capabilities in jitsi API
+    await frame.type('#usermsg', ' ');
     await this.sendMessageHandleScope(frame, event);
     unlock();
   }
@@ -190,27 +194,19 @@ export default class JitsiBot {
   /**
    * Sends a multiline chat message
    *
-   * @param {string[]} msgs - Lines to send
+   * @param {string[]} msgs - The lines to send, each item represents one line
+   * @param {IIncomingMessage} event - Optional messaging event
    */
-  async sendMessages(msgs: string[], event?: IIncomingMessage): Promise<void> {
-    await this.page.waitForSelector('iframe');
-    const elementHandle = await this.page.$('iframe');
-    const frame = await elementHandle.contentFrame();
-
-    const unlock = await this.messageMutex.acquire();
-    // eslint-disable-next-line no-restricted-syntax
-    for (const msg of msgs) {
-      /* eslint-disable no-await-in-loop */
-      await frame.type('#usermsg', msg);
-      await this.page.keyboard.down('Shift');
-      await this.page.keyboard.press('Enter');
-      await this.page.keyboard.up('Shift');
-      /* eslint-enable no-await-in-loop */
-    }
-    await this.sendMessageHandleScope(frame, event);
-    unlock();
+  async sendMultilineMessage(msgs: string[], event?: IIncomingMessage): Promise<void> {
+    return this.sendMessage(msgs.join('\n'), event);
   }
 
+  /**
+   * Handle the scope of the message to be sent (private or group message)
+   *
+   * @param frame - The jitsi IFrame instance
+   * @param event - Optional messaging event
+   */
   private async sendMessageHandleScope(frame: Frame, event?: IIncomingMessage): Promise<void> {
     if (event?.privateMessage) {
       // Attention: Typo in Jitsi api!

@@ -15,7 +15,7 @@ export default <IJimCommand> {
         await jim.onAudioEnded();
       }
     }
-    jim.sendMessages(jim.queue.map((track) => track.title), event);
+    jim.sendMultilineMessage(jim.queue.map((track) => track.title), event);
   },
   description: '<url|searchTerm> - Add track to queue',
 };
