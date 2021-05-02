@@ -17,6 +17,8 @@ export default class JitsiBot {
 
   public queue = <YtResponse[]> [];
 
+  public currentTrack: YtResponse | undefined;
+
   private youtubeConf = {
     dumpJson: true,
     noWarnings: true,
@@ -77,6 +79,7 @@ export default class JitsiBot {
   async onAudioEnded(): Promise<void> {
     if (!this.queue.length) {
       this.setAvatarUrl(config.bot.avatarUrl);
+      this.currentTrack = null;
       return;
     }
     const track = this.queue.shift();
@@ -163,6 +166,7 @@ export default class JitsiBot {
 
     this.sendMessage(`:notes: Playing ${track.title}`);
     this.setAvatarUrl(track.thumbnail);
+    this.currentTrack = track;
     try {
       await this.page.evaluate(`playAudio('${opus[0].url}')`);
     } catch (err) {

@@ -18,7 +18,7 @@ export default {
   room: <string>readOrFail('ROOM'),
   bot: {
     headless: <boolean>(env.BOT_HEADLESS !== 'false'),
-    avatarUrl: <string> env.BOT_AVATAR_URL
+    avatarUrl: <string>env.BOT_AVATAR_URL
       || 'https://raw.githubusercontent.com/p-fruck/jim/master/src/assets/logo.svg',
     name: <string>env.BOT_NAME || 'DJ Jim',
   },
@@ -28,5 +28,8 @@ export default {
   volume: {
     initialValue: <number>readInt('VOLUME_INITAL_VALUE') || 20,
     stepSize: <number>readInt('VOLUME_STEP_SIZE') || 10,
+  },
+  track: {
+    stepSize: <number>readInt('TRACK_STEP_SIZE') || 10,
   },
 };

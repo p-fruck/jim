@@ -60,6 +60,7 @@ You would like to know what my key features are? - I will assist you bringing go
 |`!ping`|Emits a life signal|
 |`!play`|\<url\|searchTerm\> - Play track now, or resume if no params were given|
 |`!skip`|Skip current track and play next one|
+|`!track`|Get information about the current track, or fast forward and rewind using eg. ++ / --- or +40 / -120|
 |`!vol`|Retrieve the current volume level if no params where given or adjust it to your needs by setting a volume level between 0 and 100, or bysetting a variable amount of + or -|
 
 
@@ -88,6 +89,7 @@ Again, you have to create a `.env` file containing your environment variables. A
 | `PLAYLIST_MAX_SIZE`    | 100                  | The maximum amount of songs that can be added to a playlist |
 | `VOLUME_INITIAL_VALUE` | 20                   | The initial music volume in percent
 | `VOLUME_STEP_SIZE`     | 10                   | Default step size in percent, utilized by eg `vol ++` |
+| `TRACK_STEP_SIZE`      | 10                   | Default step size in seconds to fast forward (or rewind) a track |
 
 ## :blue_book: License
 

@@ -1,3 +1,7 @@
+# v1.2.0
+* Significant chat performance improvements
+* Added track command
+
 # v1.1.0
 * Added dynamic command system
 * Added private/public chat support
