@@ -69,7 +69,7 @@ You would like to know what my key features are? - I will assist you bringing go
 You can simply build and deploy jim as a container using
 
 ```sh
-docker build -t jim https://github.com/p-fruck/jim.git
+docker build -t jim https://github.com/p-fruck/jim.git --squash
 docker run --rm -d --init --cap-add=SYS_ADMIN --name=jim -e ROOM=YourJitsiRoom jim
 ```
 
