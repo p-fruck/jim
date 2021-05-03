@@ -55,6 +55,7 @@ You would like to know what my key features are? - I will assist you bringing go
 |`!add`|\<url\|searchTerm\> - Add track to queue|
 |`!clear`|Clear the queue|
 |`!help`|Display the help menu|
+|`!joke`|Try to make you laugh :laughing:|
 |`!list`|Show tracks in queue|
 |`!pause`|Pause the current track|
 |`!ping`|Emits a life signal|
@@ -86,10 +87,12 @@ Again, you have to create a `.env` file containing your environment variables. A
 | `BOT_HEADLESS`         | false                | Whether or not the bot should be launched in headless mode    |
 | `BOT_NAME`             | DJ Jim               | This is the display name of your bot |
 | `BOT_AVATAR_URL`       | https://domain/logo  | A link to a publicly accesible profile picture for the jim |
+| `JOKE_DELAY`           | 2500                 | Delay in ms between setup and delivery of the joke |
+| `JOKE_FILTER`          | Any                  | Filter the joke API ([documentation](https://sv443.net/jokeapi/v2/#try-it)) |
 | `PLAYLIST_MAX_SIZE`    | 100                  | The maximum amount of songs that can be added to a playlist |
+| `TRACK_STEP_SIZE`      | 10                   | Default step size in seconds to fast forward (or rewind) a track |
 | `VOLUME_INITIAL_VALUE` | 20                   | The initial music volume in percent
 | `VOLUME_STEP_SIZE`     | 10                   | Default step size in percent, utilized by eg `vol ++` |
-| `TRACK_STEP_SIZE`      | 10                   | Default step size in seconds to fast forward (or rewind) a track |
 
 ## :blue_book: License
 

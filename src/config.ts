@@ -22,14 +22,18 @@ export default {
       || 'https://raw.githubusercontent.com/p-fruck/jim/master/src/assets/logo.svg',
     name: <string>env.BOT_NAME || 'DJ Jim',
   },
+  joke: {
+    delay: <number>readInt('JOKE_DELAY') || 2500,
+    filter: <string>env.JOKE_FILTER || 'Any',
+  },
   playlist: {
     maxSize: <number>readInt('PLAYLIST_MAX_SIZE') || 100,
+  },
+  track: {
+    stepSize: <number>readInt('TRACK_STEP_SIZE') || 10,
   },
   volume: {
     initialValue: <number>readInt('VOLUME_INITAL_VALUE') || 20,
     stepSize: <number>readInt('VOLUME_STEP_SIZE') || 10,
-  },
-  track: {
-    stepSize: <number>readInt('TRACK_STEP_SIZE') || 10,
   },
 };
