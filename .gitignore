@@ -1,3 +1,4 @@
 .env
+.scannerwork/
 node_modules/
 dist/
