@@ -71,7 +71,7 @@ You can simply build and deploy jim as a container using
 
 ```sh
 docker build -t jim https://github.com/p-fruck/jim.git --squash
-docker run --rm -d --init --cap-add=SYS_ADMIN --name=jim -e ROOM=YourJitsiRoom jim
+docker run --rm -d --init --cap-add=SYS_ADMIN --name=jim -e ROOM_NAME=YourJitsiRoom jim
 ```
 
 You can even mount a .env file to store your environment variables by adding `-v .env:.env` to the docker command.
@@ -79,11 +79,12 @@ You can even mount a .env file to store your environment variables by adding `-v
 Alternatively, you can start the bot without any sort of container-technology, using
 `npm ci && npm run start`.
 
-Again, you have to create a `.env` file containing your environment variables. A list off all available variables can be found below, but only `ROOM` is required:
+Again, you have to create a `.env` file containing your environment variables. A list off all available variables can be found below, but only `ROOM_NAME` is required:
 
 | Variable               | Example Value        | Description |
 | ---------------------- | -------------------- | ----------- |
-| `ROOM`                 | ExampleJitsiRoom1234 | Name of the room to join |
+| `ROOM_NAME`            | ExampleJitsiRoom1234 | Name of the room to join |
+| `ROOM_PASSWORD`        | Passord123!          | Password of the jitsi room (if any) |
 | `BOT_HEADLESS`         | false                | Whether or not the bot should be launched in headless mode    |
 | `BOT_NAME`             | DJ Jim               | This is the display name of your bot |
 | `BOT_AVATAR_URL`       | https://domain/logo  | A link to a publicly accesible profile picture for the jim |

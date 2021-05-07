@@ -1,9 +1,10 @@
 import { Browser, Frame, Page } from 'puppeteer';
 import youtubedl, { YtResponse } from 'youtube-dl-exec';
-import Mutex from './mutex';
-import config from './config';
-import { IIncomingMessage, IParticipantKickedOut } from './models/jitsi.interface';
+import { exit } from 'process';
 import CommandService from './command.service';
+import config from './config';
+import Mutex from './mutex';
+import { IIncomingMessage, IParticipantKickedOut } from './models/jitsi.interface';
 
 // eslint-disable-next-line no-unused-vars
 type ExposableFunction = (arg0: any) => any;
@@ -30,6 +31,7 @@ export default class JitsiBot {
 
   private constructor(page: Page) {
     this.page = page;
+    this.exposeListenerFunction(this.passwordRequired);
     this.exposeListenerFunction(this.participantKickedOut);
     this.exposeListenerFunction(this.videoConferenceJoined);
     this.exposeListenerFunction(this.onAudioEnded);
@@ -56,6 +58,27 @@ export default class JitsiBot {
     const bot = new JitsiBot(page);
     bot.cmdService = await CommandService.init(bot);
     return bot;
+  }
+
+  private async getApiFrame(): Promise<Frame> {
+    await this.page.waitForSelector('iframe');
+    const elementHandle = await this.page.$('iframe');
+    return elementHandle.contentFrame();
+  }
+
+  /**
+   * Gets called when Jim trys to join a room which requires a password
+   */
+  private async passwordRequired(): Promise<void> {
+    const frame = await this.getApiFrame();
+
+    if (!config.room.password) {
+      console.error('Room requires password, but password was not specified');
+      exit(1);
+    }
+    await frame.type('input[type=password]', config.room.password);
+    const passwordButton = await frame.$('#modal-dialog-ok-button');
+    await passwordButton.click();
   }
 
   /**
@@ -182,10 +205,7 @@ export default class JitsiBot {
    * @param {IIncomingMessage} event - Optional messaging event
    */
   async sendMessage(msg: string, event?: IIncomingMessage): Promise<void> {
-    await this.page.waitForSelector('iframe');
-    const elementHandle = await this.page.$('iframe');
-    const frame = await elementHandle.contentFrame();
-
+    const frame = await this.getApiFrame();
     const unlock = await this.messageMutex.acquire();
     const b64 = Buffer.from(msg).toString('base64');
     await this.page.evaluate(`setMessage('${b64}')`);
@@ -213,8 +233,7 @@ export default class JitsiBot {
    */
   private async sendMessageHandleScope(frame: Frame, event?: IIncomingMessage): Promise<void> {
     if (event?.privateMessage) {
-      // Attention: Typo in Jitsi api!
-      await this.page.evaluate(`api.executeCommand('intiatePrivateChat', '${event.from}')`);
+      await this.page.evaluate(`api.executeCommand('initiatePrivateChat', '${event.from}')`);
       await frame.click('.send-button');
       await this.page.evaluate('api.executeCommand("cancelPrivateChat")');
     } else {

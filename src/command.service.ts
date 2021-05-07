@@ -50,7 +50,7 @@ export default class CommandService {
     if (command) {
       command.execute(this.jim, params, event);
     } else {
-      this.jim.sendMessage('Are you talking to me? :thinking: Try !help :bulb:');
+      this.jim.sendMessage('Are you talking to me? :thinking: Try !help :bulb:', event);
     }
   }
 }
