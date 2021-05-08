@@ -1,10 +1,10 @@
 import { Browser, Frame, Page } from 'puppeteer';
 import youtubedl, { YtResponse } from 'youtube-dl-exec';
-import { exit } from 'process';
 import CommandService from './command.service';
 import config from './config';
 import Mutex from './mutex';
 import { IIncomingMessage, IParticipantKickedOut } from './models/jitsi.interface';
+import logger from './logger';
 
 // eslint-disable-next-line no-unused-vars
 type ExposableFunction = (arg0: any) => any;
@@ -53,6 +53,8 @@ export default class JitsiBot {
 
     await page.goto(url, { waitUntil: 'load' });
     const gain = config.volume.initialValue;
+
+    logger.info(`joining conference ${roomName}`);
     await page.evaluate(`joinConference('${roomName}', '${botName}', ${gain})`);
 
     const bot = new JitsiBot(page);
@@ -73,8 +75,8 @@ export default class JitsiBot {
     const frame = await this.getApiFrame();
 
     if (!config.room.password) {
-      console.error('Room requires password, but password was not specified');
-      exit(1);
+      logger.error('Room requires password, but password was not specified');
+      await this.page.browser().close();
     }
     await frame.type('input[type=password]', config.room.password);
     const passwordButton = await frame.$('#modal-dialog-ok-button');
@@ -118,7 +120,8 @@ export default class JitsiBot {
   private async participantKickedOut(event: IParticipantKickedOut): Promise<void> {
     if (!event.kicked.local) return;
     // Damn, I've got kicked out D:
-    await this.page.browser().close(); // ToDo: Consider multiple bots per browser
+    logger.info('Kicked out of the meeting - exiting');
+    await this.page.browser().close();
   }
 
   /**
@@ -177,6 +180,7 @@ export default class JitsiBot {
    * @param {YtResponse} track - The track to play
    */
   async playAudio(track: YtResponse): Promise<void> {
+    logger.debug(`Playing ${track.title}`);
     if (!track?.formats?.length) {
       this.sendMessage('This video doesn\'t seem to be available :confused:');
       return;
@@ -184,7 +188,7 @@ export default class JitsiBot {
 
     const opus = track.formats.filter((format) => format.acodec === 'opus');
     if (!opus.length) {
-      throw new Error('Couldn\'t play video due to nonfree codec');
+      logger.error(`Couldn't play video due to nonfree codec: ${track.title}`);
     }
 
     this.sendMessage(`:notes: Playing ${track.title}`);
@@ -194,7 +198,7 @@ export default class JitsiBot {
       await this.page.evaluate(`playAudio('${opus[0].url}')`);
     } catch (err) {
       await this.sendMessage('Sorry, I wasn\'t able to play this track :confounded_face: Please check your logs and report this bug :bug:');
-      throw new Error(`Failed to play audio - ${opus[0]},  ${err}`);
+      logger.error(`Failed to play audio - ${opus[0]},  ${err}`);
     }
   }
 

@@ -3,6 +3,7 @@ import JitsiBot from '../jitsi-bot';
 import { IJimCommand } from '../command.service';
 import config from '../config';
 import { IIncomingMessage } from '../models/jitsi.interface';
+import logger from '../logger';
 
 interface IJoke {
   error: boolean,
@@ -46,12 +47,12 @@ export default <IJimCommand>{
     });
 
     req.on('error', async (err) => {
+      logger.error(`Error fetching joke API: ${err}`);
       await jim.sendMultilineMessage([
         'Knock knock',
         'Who\'s there?',
         'An error! Check your Logs!',
       ], event);
-      throw new Error(`Error fetching joke API: ${err}`);
     });
 
     req.end();

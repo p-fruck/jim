@@ -29,6 +29,9 @@ export default {
     delay: readInt('JOKE_DELAY') || 2500,
     filter: env.JOKE_FILTER || 'Any',
   },
+  log: {
+    level: env.LOG_LEVEL || 'info',
+  },
   playlist: {
     maxSize: readInt('PLAYLIST_MAX_SIZE') || 100,
   },

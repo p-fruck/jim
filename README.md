@@ -90,6 +90,7 @@ Again, you have to create a `.env` file containing your environment variables. A
 | `BOT_AVATAR_URL`       | https://domain/logo  | A link to a publicly accesible profile picture for the jim |
 | `JOKE_DELAY`           | 2500                 | Delay in ms between setup and delivery of the joke |
 | `JOKE_FILTER`          | Any                  | Filter the joke API ([documentation](https://sv443.net/jokeapi/v2/#try-it)) |
+| `LOG_LEVEL`            | info                 | The log level. Choose between error, warn, info and debug.
 | `PLAYLIST_MAX_SIZE`    | 100                  | The maximum amount of songs that can be added to a playlist |
 | `TRACK_STEP_SIZE`      | 10                   | Default step size in seconds to fast forward (or rewind) a track |
 | `VOLUME_INITIAL_VALUE` | 20                   | The initial music volume in percent

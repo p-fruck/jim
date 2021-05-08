@@ -17,6 +17,7 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "puppeteer": "^9.0.0",
+    "winston": "^3.3.3",
     "youtube-dl-exec": "^1.2.3"
   },
   "devDependencies": {

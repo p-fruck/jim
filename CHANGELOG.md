@@ -12,6 +12,7 @@
 * Added joke command
 * Added support for rooms with lobby enabled
 * Added support for password protected rooms
+* Implemented logger
 
 ## Breaking changes
 * Adapted to Jitsi API changes, see [here](https://github.com/jitsi/jitsi-meet/issues/9098)
