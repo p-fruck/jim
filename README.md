@@ -33,24 +33,22 @@
   </a>
 </p>
 
-<h4 align="center">Monitored by SonarQube</h4>
+<h4 align="center">:lock: Monitored by SonarQube</h4>
 
 <p align="center">
-  <a href="https://sonar.p-fruck.de/dashboard?id=p-fruck%3Ajim">
-    <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=alert_status" />
-  </a>
-  <a href="https://sonar.p-fruck.de/dashboard?id=p-fruck%3Ajim">
-      <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=reliability_rating" />
-  </a>
-  <a href="https://sonar.p-fruck.de/dashboard?id=p-fruck%3Ajim">
-      <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=security_rating" />
-  </a>
-  <a href="https://sonar.p-fruck.de/dashboard?id=p-fruck%3Ajim">
-      <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=sqale_index" />
-  </a>
-  <a href="https://sonar.p-fruck.de/dashboard?id=p-fruck%3Ajim">
-      <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=vulnerabilities" />
-  </a>
+  <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=ncloc" />
+  <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=sqale_rating" />
+  <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=alert_status" />
+  <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=reliability_rating" />
+  <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=security_rating" />
+</p>
+
+<p align="center">
+  <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=bugs" />
+  <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=code_smells" />
+  <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=duplicated_lines_density" />
+  <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=sqale_index" />
+  <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=vulnerabilities" />
 </p>
 
 <p align="center">
