@@ -1,4 +1,4 @@
-import JitsiBot from '../bot';
+import JitsiBot from '../jitsi-bot';
 import { IJimCommand } from '../command.service';
 import config from '../config';
 import { IIncomingMessage } from '../models/jitsi.interface';

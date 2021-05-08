@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import JitsiBot from './bot';
+import JitsiBot from './jitsi-bot';
 import { IIncomingMessage } from './models/jitsi.interface';
 
 export interface IJimCommand {
