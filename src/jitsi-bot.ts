@@ -1,9 +1,10 @@
 import { Browser, Frame, Page } from 'puppeteer';
 import youtubedl, { YtResponse } from 'youtube-dl-exec';
-import Mutex from './mutex';
-import config from './config';
-import { IIncomingMessage, IParticipantKickedOut } from './models/jitsi.interface';
 import CommandService from './command.service';
+import config from './config';
+import Mutex from './mutex';
+import { IIncomingMessage, IParticipantKickedOut } from './models/jitsi.interface';
+import logger from './logger';
 
 // eslint-disable-next-line no-unused-vars
 type ExposableFunction = (arg0: any) => any;
@@ -17,6 +18,8 @@ export default class JitsiBot {
 
   public queue = <YtResponse[]> [];
 
+  public currentTrack: YtResponse | undefined;
+
   private youtubeConf = {
     dumpJson: true,
     noWarnings: true,
@@ -28,6 +31,7 @@ export default class JitsiBot {
 
   private constructor(page: Page) {
     this.page = page;
+    this.exposeListenerFunction(this.passwordRequired);
     this.exposeListenerFunction(this.participantKickedOut);
     this.exposeListenerFunction(this.videoConferenceJoined);
     this.exposeListenerFunction(this.onAudioEnded);
@@ -49,11 +53,34 @@ export default class JitsiBot {
 
     await page.goto(url, { waitUntil: 'load' });
     const gain = config.volume.initialValue;
+
+    logger.info(`joining conference ${roomName}`);
     await page.evaluate(`joinConference('${roomName}', '${botName}', ${gain})`);
 
     const bot = new JitsiBot(page);
     bot.cmdService = await CommandService.init(bot);
     return bot;
+  }
+
+  private async getApiFrame(): Promise<Frame> {
+    await this.page.waitForSelector('iframe');
+    const elementHandle = await this.page.$('iframe');
+    return elementHandle.contentFrame();
+  }
+
+  /**
+   * Gets called when Jim trys to join a room which requires a password
+   */
+  private async passwordRequired(): Promise<void> {
+    const frame = await this.getApiFrame();
+
+    if (!config.room.password) {
+      logger.error('Room requires password, but password was not specified');
+      await this.page.browser().close();
+    }
+    await frame.type('input[type=password]', config.room.password);
+    const passwordButton = await frame.$('#modal-dialog-ok-button');
+    await passwordButton.click();
   }
 
   /**
@@ -77,6 +104,7 @@ export default class JitsiBot {
   async onAudioEnded(): Promise<void> {
     if (!this.queue.length) {
       this.setAvatarUrl(config.bot.avatarUrl);
+      this.currentTrack = null;
       return;
     }
     const track = this.queue.shift();
@@ -92,7 +120,8 @@ export default class JitsiBot {
   private async participantKickedOut(event: IParticipantKickedOut): Promise<void> {
     if (!event.kicked.local) return;
     // Damn, I've got kicked out D:
-    await this.page.browser().close(); // ToDo: Consider multiple bots per browser
+    logger.info('Kicked out of the meeting - exiting');
+    await this.page.browser().close();
   }
 
   /**
@@ -151,6 +180,7 @@ export default class JitsiBot {
    * @param {YtResponse} track - The track to play
    */
   async playAudio(track: YtResponse): Promise<void> {
+    logger.debug(`Playing ${track.title}`);
     if (!track?.formats?.length) {
       this.sendMessage('This video doesn\'t seem to be available :confused:');
       return;
@@ -158,16 +188,17 @@ export default class JitsiBot {
 
     const opus = track.formats.filter((format) => format.acodec === 'opus');
     if (!opus.length) {
-      throw new Error('Couldn\'t play video due to nonfree codec');
+      logger.error(`Couldn't play video due to nonfree codec: ${track.title}`);
     }
 
     this.sendMessage(`:notes: Playing ${track.title}`);
     this.setAvatarUrl(track.thumbnail);
+    this.currentTrack = track;
     try {
       await this.page.evaluate(`playAudio('${opus[0].url}')`);
     } catch (err) {
       await this.sendMessage('Sorry, I wasn\'t able to play this track :confounded_face: Please check your logs and report this bug :bug:');
-      throw new Error(`Failed to play audio - ${opus[0]},  ${err}`);
+      logger.error(`Failed to play audio - ${opus[0]},  ${err}`);
     }
   }
 
@@ -175,14 +206,15 @@ export default class JitsiBot {
    * Sends a chat message
    *
    * @param {string} msg - The message to send
+   * @param {IIncomingMessage} event - Optional messaging event
    */
   async sendMessage(msg: string, event?: IIncomingMessage): Promise<void> {
-    await this.page.waitForSelector('iframe');
-    const elementHandle = await this.page.$('iframe');
-    const frame = await elementHandle.contentFrame();
-
+    const frame = await this.getApiFrame();
     const unlock = await this.messageMutex.acquire();
-    await frame.type('#usermsg', msg);
+    const b64 = Buffer.from(msg).toString('base64');
+    await this.page.evaluate(`setMessage('${b64}')`);
+    // work around missing messaging capabilities in jitsi API
+    await frame.type('#usermsg', ' ');
     await this.sendMessageHandleScope(frame, event);
     unlock();
   }
@@ -190,31 +222,22 @@ export default class JitsiBot {
   /**
    * Sends a multiline chat message
    *
-   * @param {string[]} msgs - Lines to send
+   * @param {string[]} msgs - The lines to send, each item represents one line
+   * @param {IIncomingMessage} event - Optional messaging event
    */
-  async sendMessages(msgs: string[], event?: IIncomingMessage): Promise<void> {
-    await this.page.waitForSelector('iframe');
-    const elementHandle = await this.page.$('iframe');
-    const frame = await elementHandle.contentFrame();
-
-    const unlock = await this.messageMutex.acquire();
-    // eslint-disable-next-line no-restricted-syntax
-    for (const msg of msgs) {
-      /* eslint-disable no-await-in-loop */
-      await frame.type('#usermsg', msg);
-      await this.page.keyboard.down('Shift');
-      await this.page.keyboard.press('Enter');
-      await this.page.keyboard.up('Shift');
-      /* eslint-enable no-await-in-loop */
-    }
-    await this.sendMessageHandleScope(frame, event);
-    unlock();
+  async sendMultilineMessage(msgs: string[], event?: IIncomingMessage): Promise<void> {
+    return this.sendMessage(msgs.join('\n'), event);
   }
 
+  /**
+   * Handle the scope of the message to be sent (private or group message)
+   *
+   * @param frame - The jitsi IFrame instance
+   * @param event - Optional messaging event
+   */
   private async sendMessageHandleScope(frame: Frame, event?: IIncomingMessage): Promise<void> {
     if (event?.privateMessage) {
-      // Attention: Typo in Jitsi api!
-      await this.page.evaluate(`api.executeCommand('intiatePrivateChat', '${event.from}')`);
+      await this.page.evaluate(`api.executeCommand('initiatePrivateChat', '${event.from}')`);
       await frame.click('.send-button');
       await this.page.evaluate('api.executeCommand("cancelPrivateChat")');
     } else {

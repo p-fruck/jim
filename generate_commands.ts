@@ -11,7 +11,7 @@ function extractDescription(service: CommandService, cmd: string): string {
 }
 
 async function generateMarkdownTable() {
-  const service = await CommandService.init(null);
+  const service = await CommandService.init(null, false);
   console.log('| Command | Description |');
   console.log('| ------- | ----------- |');
   Object

@@ -1,4 +1,4 @@
-import JitsiBot from '../bot';
+import JitsiBot from '../jitsi-bot';
 import { IJimCommand } from '../command.service';
 
 export default <IJimCommand> {

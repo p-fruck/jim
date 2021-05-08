@@ -59,6 +59,14 @@
     }
 
     /**
+     * If lobby is enabled, ask to join
+     */
+    function askToJoin() {
+        const joinButton = api.getIFrame().contentDocument.querySelector('#lobby-screen .action-btn.primary');
+        if (joinButton) joinButton.click();
+    }
+
+    /**
      * Populates the meet container with a jitsi meet iframe and
      * joins a given conference
      *
@@ -73,8 +81,8 @@
                 displayName,
             },
             roomName,
-            width: 700,
-            height: 700,
+            width: "100%",
+            height: "100%",
             parentNode: document.querySelector('#meet'),
             configOverwrite: {
                 startWithAudioMuted: false,
@@ -85,26 +93,27 @@
                     opusMaxAverageBitrate: 510000 // Value to fit the 6000 to 510000 range.
                 },
                 prejoinPageEnabled: false,
+                // disable everything unused
                 notifications: [],
+                enableNoAudioDetection: false,
+                enableNoisyMicDetection: false,
+                disableResponsiveTiles: true,
+                gatherStats: false,
+                disableThirdPartyRequests: true,
+                analytics: {
+                    rtcstatsEnabled: false,
+                },
+                disableJoinLeaveSounds: true,
+                disableTileView: true,
+                hideConferenceSubject: true,
+                hideConferenceTimer: true,
+                hideParticipantsStats: true,
             },
-            // disable everything unused
-            disableAudioLevels: true,
-            enableNoAudioDetection: false,
-            enableNoisyMicDetection: false,
-            disableResponsiveTiles: true,
-            gatherStats: false,
-            disableThirdPartyRequests: true,
-            analytics: {
-                rtcstatsEnabled: false,
-            },
-            disableJoinLeaveSounds: true,
-            disableTileView: true,
-            hideConferenceSubject: true,
-            hideConferenceTimer: true,
-            hideParticipantsStats: true,
+
         };
 
         api = new JitsiMeetExternalAPI(domain, options);
+        api.addListener('videoConferenceLeft', askToJoin);
         api.getIFrame().setAttribute('sandbox', ""); // allow-same-origin
         initAudio(initialVolume);
     }
@@ -118,5 +127,24 @@
         await audio.pause();
         audio.setAttribute("src", url);
         await audio.play();
+    }
+
+    /**
+     * ASCII to Unicode (decode Base64 to original data)
+     * @param {string} b64 - Base64 encoded input
+     * @return {string} - unicode compatible output
+     */
+    function atou(b64) {
+        return decodeURIComponent(escape(atob(b64)));
+    }
+
+    /**
+     * Set input of the message field. The sending functionality will be
+     * simulated by the browser, since there's no jitsi endpoint to do so
+     *
+     * @param {string} b64 - message encoded as base64
+     */
+    function setMessage(b64) {
+        api.getIFrame().contentWindow.document.getElementById('usermsg').value = atou(b64);
     }
 </script>

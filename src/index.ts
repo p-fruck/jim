@@ -1,9 +1,9 @@
 import puppeteer from 'puppeteer';
-import JitsiBot from './bot';
+import JitsiBot from './jitsi-bot';
 import config from './config';
 
 async function startBrowser(): Promise<void> {
-  const { room, bot: { headless, name } } = config;
+  const { room, bot: { headless, name: botName } } = config;
 
   const browser = await puppeteer.launch({
     args: [
@@ -19,7 +19,7 @@ async function startBrowser(): Promise<void> {
     headless,
   });
 
-  await JitsiBot.init(browser, room, name);
+  await JitsiBot.init(browser, room.name, botName);
 }
 
 startBrowser();

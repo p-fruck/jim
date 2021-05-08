@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import JitsiBot from './bot';
+import JitsiBot from './jitsi-bot';
 import { IIncomingMessage } from './models/jitsi.interface';
 
 export interface IJimCommand {
@@ -19,14 +19,20 @@ export default class CommandService {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  static async init(jim: JitsiBot) {
+  static async init(jim: JitsiBot, registerLocalCommands = true) {
     const promises = [];
     const cmdDir = path.join(__dirname, '/commands');
     const service = new CommandService(jim);
-    fs
-      .readdirSync(cmdDir)
+
+    const registerDirectory = (dir: string) => fs
+      .readdirSync(dir)
       .filter((filePath) => /.*\.cmd\.[jt]s$/.test(filePath))
-      .forEach((filePath) => promises.push(service.registerCommand(cmdDir, filePath)));
+      .forEach((filePath) => promises.push(service.registerCommand(dir, filePath)));
+
+    registerDirectory(cmdDir);
+    if (registerLocalCommands) {
+      registerDirectory(path.join(cmdDir, '/local'));
+    }
 
     await Promise.all(promises);
     return service;
@@ -44,7 +50,7 @@ export default class CommandService {
     if (command) {
       command.execute(this.jim, params, event);
     } else {
-      this.jim.sendMessage('Are you talking to me? :thinking: Try !help :bulb:');
+      this.jim.sendMessage('Are you talking to me? :thinking: Try !help :bulb:', event);
     }
   }
 }

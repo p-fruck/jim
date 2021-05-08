@@ -15,18 +15,31 @@ const readOrFail = (name: string) => {
 };
 
 export default {
-  room: <string>readOrFail('ROOM'),
+  room: {
+    name: readOrFail('ROOM_NAME'),
+    password: env.ROOM_PASSWORD,
+  },
   bot: {
-    headless: <boolean>(env.BOT_HEADLESS !== 'false'),
-    avatarUrl: <string> env.BOT_AVATAR_URL
+    headless: (env.BOT_HEADLESS !== 'false'),
+    avatarUrl: env.BOT_AVATAR_URL
       || 'https://raw.githubusercontent.com/p-fruck/jim/master/src/assets/logo.svg',
-    name: <string>env.BOT_NAME || 'DJ Jim',
+    name: env.BOT_NAME || 'DJ Jim',
+  },
+  joke: {
+    delay: readInt('JOKE_DELAY') || 2500,
+    filter: env.JOKE_FILTER || 'Any',
+  },
+  log: {
+    level: env.LOG_LEVEL || 'info',
   },
   playlist: {
-    maxSize: <number>readInt('PLAYLIST_MAX_SIZE') || 100,
+    maxSize: readInt('PLAYLIST_MAX_SIZE') || 100,
+  },
+  track: {
+    stepSize: readInt('TRACK_STEP_SIZE') || 10,
   },
   volume: {
-    initialValue: <number>readInt('VOLUME_INITAL_VALUE') || 20,
-    stepSize: <number>readInt('VOLUME_STEP_SIZE') || 10,
+    initialValue: readInt('VOLUME_INITAL_VALUE') || 20,
+    stepSize: readInt('VOLUME_STEP_SIZE') || 10,
   },
 };
