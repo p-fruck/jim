@@ -33,6 +33,26 @@
   </a>
 </p>
 
+<h4 align="center">Monitored by SonarQube</h4>
+
+<p align="center">
+  <a href="https://sonar.p-fruck.de/dashboard?id=p-fruck%3Ajim">
+    <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=alert_status" />
+  </a>
+  <a href="https://sonar.p-fruck.de/dashboard?id=p-fruck%3Ajim">
+      <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=reliability_rating" />
+  </a>
+  <a href="https://sonar.p-fruck.de/dashboard?id=p-fruck%3Ajim">
+      <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=security_rating" />
+  </a>
+  <a href="https://sonar.p-fruck.de/dashboard?id=p-fruck%3Ajim">
+      <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=sqale_index" />
+  </a>
+  <a href="https://sonar.p-fruck.de/dashboard?id=p-fruck%3Ajim">
+      <img src="https://sonar.p-fruck.de/api/project_badges/measure?project=p-fruck%3Ajim&metric=vulnerabilities" />
+  </a>
+</p>
+
 <p align="center">
   <a href="#tada-key-features">Key Features</a> •
   <a href="#desktop_computer-commands">Commands</a> •
