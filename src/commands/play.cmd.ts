@@ -2,7 +2,7 @@ import JitsiBot from '../jitsi-bot';
 import { IJimCommand } from '../command.service';
 
 export default <IJimCommand> {
-  parameter: '<url|searchTerm>',
+  parameters: '<url|searchTerm>',
   description: 'Play track or first result from search term now! Resume if no parameter is provided',
   execute: async (jim: JitsiBot, params: string[]) => {
     if (params.length === 0) {
