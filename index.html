@@ -70,12 +70,12 @@
      * Populates the meet container with a jitsi meet iframe and
      * joins a given conference
      *
+     * @param {string} domain - Domain of the jitsi instance
      * @param {string} roomName - The room to join
      * @param {string} displayName - The name of the bot
      * @param {number} initialVolume - Initial volume level in percent
      */
-    function joinConference(roomName, displayName, initialVolume) {
-        const domain = 'meet.jit.si';
+    function joinConference(domain, roomName, displayName, initialVolume) {
         const options = {
             userInfo: {
                 displayName,
@@ -146,5 +146,19 @@
      */
     function setMessage(b64) {
         api.getIFrame().contentWindow.document.getElementById('usermsg').value = atou(b64);
+    }
+
+    /**
+     * Figure out the version of the current Jitsi instance
+     *
+     * @param {number} - version of the current Jitsi instance
+     */
+    function getJitsiVersion() {
+        const libJitsiMeet = api.getIFrame().contentDocument.querySelector('script[src^="libs/lib-jitsi-meet"]');
+        if (libJitsiMeet && libJitsiMeet.src) {
+            const version = libJitsiMeet.src.match(/\d+/);
+            if (version.length) return parseInt(version[0], 10);
+        }
+        return 0;
     }
 </script>

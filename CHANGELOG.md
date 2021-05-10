@@ -1,3 +1,8 @@
+# Development
+
+### Features
+* Added support for self-hosted instances
+
 # v2.0.0
 
 ### Bug Fixes

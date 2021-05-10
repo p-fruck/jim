@@ -3,7 +3,7 @@ import JitsiBot from './jitsi-bot';
 import config from './config';
 
 async function startBrowser(): Promise<void> {
-  const { room, bot: { headless, name: botName } } = config;
+  const { room, bot: { headless, name: botName }, jitsi: { domain } } = config;
 
   const browser = await puppeteer.launch({
     args: [
@@ -19,7 +19,7 @@ async function startBrowser(): Promise<void> {
     headless,
   });
 
-  await JitsiBot.init(browser, room.name, botName);
+  await JitsiBot.init(browser, domain, room.name, botName);
 }
 
 startBrowser();

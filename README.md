@@ -106,6 +106,7 @@ Again, you have to create a `.env` file containing your environment variables. A
 | `BOT_AVATAR_URL`       	| Logo of JIM 	| A link to a publicly accessible profile picture for JIM                          	|
 | `BOT_HEADLESS`         	|    `true`   	| Whether or not the bot should be launched in headless mode                       	|
 | `BOT_NAME`             	|   `DJ JIM`  	| Defines the display name of your bot                                             	|
+| `JITSI_DOMAIN`         	| `meet.jit.si` | Specify the base domain of your Jitsi instance                                  	|
 | `JOKE_DELAY`           	|    `2500`   	| Sets the delay in ms between setup and delivery of the joke                      	|
 | `JOKE_FILTER`          	|    `Any`    	| Sets filter the joke API ([documentation](https://sv443.net/jokeapi/v2/#try-it)) 	|
 | `LOG_LEVEL`            	|    `info`   	| Defines the minimum log level. Choose `error`, `warn`, `info` or `debug`         	|

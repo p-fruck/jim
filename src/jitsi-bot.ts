@@ -47,7 +47,9 @@ export default class JitsiBot {
    * @param botName - The display name of the bot
    * @returns - Promise of the JitsiBot instance
    */
-  static async init(browser: Browser, roomName: string, botName: string): Promise<JitsiBot> {
+  static async init(
+    browser: Browser, domain: string, roomName: string, botName: string,
+  ): Promise<JitsiBot> {
     const page = await browser.newPage();
     const url = `file://${__dirname}/../index.html`;
 
@@ -55,7 +57,7 @@ export default class JitsiBot {
     const gain = config.volume.initialValue;
 
     logger.info(`joining conference ${roomName}`);
-    await page.evaluate(`joinConference('${roomName}', '${botName}', ${gain})`);
+    await page.evaluate(`joinConference('${domain}', '${roomName}', '${botName}', ${gain})`);
 
     const bot = new JitsiBot(page);
     bot.cmdService = await CommandService.init(bot);
@@ -78,7 +80,7 @@ export default class JitsiBot {
       logger.error('Room requires password, but password was not specified');
       await this.page.browser().close();
     }
-    await frame.type('input[type=password]', config.room.password);
+    await frame.type('input', config.room.password);
     const passwordButton = await frame.$('#modal-dialog-ok-button');
     await passwordButton.click();
   }
@@ -89,6 +91,12 @@ export default class JitsiBot {
    * messages on join.
    */
   private async videoConferenceJoined(): Promise<void> {
+    const version = <number> await this.page.evaluate('getJitsiVersion()');
+    logger.info(`Using lib-jitsi-meet v${version}`);
+    if (version < 4900) {
+      logger.warn('Attention! You are running on an outdated version of Jitsi! Jim might not work on this instance!');
+    }
+
     this.setAvatarUrl(config.bot.avatarUrl);
     await this.exposeFunction(this.cmdService.incomingMessage, this.cmdService);
     await this.removeEventListener(this.cmdService.incomingMessage, 'dummyMessageListener');

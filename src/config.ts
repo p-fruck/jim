@@ -25,6 +25,9 @@ export default {
       || 'https://raw.githubusercontent.com/p-fruck/jim/master/src/assets/logo.svg',
     name: env.BOT_NAME || 'DJ Jim',
   },
+  jitsi: {
+    domain: env.JITSI_DOMAIN || 'meet.jit.si',
+  },
   joke: {
     delay: readInt('JOKE_DELAY') || 2500,
     filter: env.JOKE_FILTER || 'Any',
