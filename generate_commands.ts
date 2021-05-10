@@ -5,9 +5,11 @@
  */
 import CommandService from './src/command.service';
 
-function extractDescription(service: CommandService, cmd: string): string {
-  const { description } = service.commands[cmd];
-  return description.replace(/[<|>]/g, '\\$&');
+function generateTableRow(service: CommandService, cmd: string): string {
+  const { parameters, description } = service.commands[cmd];
+  const command = parameters ? `${cmd} ${parameters}` : cmd
+  const escapedDescription = description.replace(/[<|>]/g, '\\$&');
+  return `|\`${command.replace('|', '\\|')}\`|${escapedDescription}|`
 }
 
 async function generateMarkdownTable() {
@@ -17,7 +19,7 @@ async function generateMarkdownTable() {
   Object
     .keys(service.commands)
     .sort()
-    .forEach((cmd) => console.log(`|\`${cmd}\`|${extractDescription(service, cmd)}|`));
+    .forEach((cmd) => console.log(generateTableRow(service, cmd)));
 }
 
 generateMarkdownTable();

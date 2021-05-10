@@ -4,9 +4,10 @@ import JitsiBot from './jitsi-bot';
 import { IIncomingMessage } from './models/jitsi.interface';
 
 export interface IJimCommand {
+  parameters?: string;
+  description: string;
   // eslint-disable-next-line no-unused-vars
   execute(jim: JitsiBot, params: string[], event: IIncomingMessage): void | Promise<void>;
-  description: string;
 }
 
 export default class CommandService {

@@ -33,6 +33,7 @@ const options = {
 };
 
 export default <IJimCommand>{
+  description: 'Try to make you laugh :laughing:',
   execute: async (jim: JitsiBot, params: string[], event: IIncomingMessage) => {
     const req = https.request(options, (res) => {
       res.on('data', async (data: string) => {
@@ -57,5 +58,4 @@ export default <IJimCommand>{
 
     req.end();
   },
-  description: 'Try to make you laugh :laughing:',
 };

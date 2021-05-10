@@ -4,6 +4,9 @@ import config from '../config';
 import { IIncomingMessage } from '../models/jitsi.interface';
 
 export default <IJimCommand> {
+  parameters: '<value>',
+  description: 'If no `value` is provided, retrieve the current volume level. Use a number '
+             + 'from `0` to `100` or a variable amount of `+` or `-` to adjust the volume',
   execute: async (jim: JitsiBot, params: string[], event: IIncomingMessage) => {
     let gain = <number> await jim.page.evaluate('getGain()');
     if (params.length === 0) {
@@ -33,7 +36,4 @@ export default <IJimCommand> {
       jim.page.evaluate(`setGain(${gain})`);
     }
   },
-  description: 'Retrieve the current volume level if no params where given or adjust '
-             + 'it to your needs by setting a volume level between 0 and 100, or by'
-             + 'setting a variable amount of + or -',
 };

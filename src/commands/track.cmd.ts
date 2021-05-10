@@ -24,6 +24,8 @@ function formatTime(time: number, duration: number): string {
 }
 
 export default <IJimCommand>{
+  parameters: '<value>',
+  description: 'If no `value` is provided, get information about the current track. Use e.g. `++`/`---` or `+40` / `-120` to fast forward or rewind',
   execute: async (jim: JitsiBot, params: string[], event: IIncomingMessage) => {
     if (params.length === 0) {
       if (jim.currentTrack) {
@@ -56,6 +58,4 @@ export default <IJimCommand>{
       }
     }
   },
-  description: 'Get information about the current track, or fast forward and rewind '
-    + 'using eg. ++ / --- or +40 / -120',
 };
