@@ -3,6 +3,7 @@ import { IJimCommand } from '../command.service';
 import config from '../config';
 
 export default <IJimCommand> {
+  description: 'Skip current track and play next one',
   execute: (jim: JitsiBot) => {
     if (jim.queue.length) {
       jim.onAudioEnded();
@@ -11,5 +12,4 @@ export default <IJimCommand> {
       jim.setAvatarUrl(config.bot.avatarUrl);
     }
   },
-  description: 'Skip current track and play next one',
 };

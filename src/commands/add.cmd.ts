@@ -4,6 +4,8 @@ import config from '../config';
 import { IIncomingMessage } from '../models/jitsi.interface';
 
 export default <IJimCommand> {
+  parameters: '<url|searchTerm>',
+  description: 'Add track or pick the first result from search term to queue',
   execute: async (jim: JitsiBot, params: string[], event: IIncomingMessage) => {
     if (params.length) {
       if (jim.queue.length >= config.playlist.maxSize) {
@@ -17,5 +19,4 @@ export default <IJimCommand> {
     }
     jim.sendMultilineMessage(jim.queue.map((track) => track.title), event);
   },
-  description: '<url|searchTerm> - Add track to queue',
 };
