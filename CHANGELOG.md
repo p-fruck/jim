@@ -1,5 +1,8 @@
 # Development
 
+### Bug Fixes
+* Fixed sending messages on older Jitsi instances
+
 ### Features
 * Added support for self-hosted instances
 

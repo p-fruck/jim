@@ -246,10 +246,10 @@ export default class JitsiBot {
   private async sendMessageHandleScope(frame: Frame, event?: IIncomingMessage): Promise<void> {
     if (event?.privateMessage) {
       await this.page.evaluate(`api.executeCommand('initiatePrivateChat', '${event.from}')`);
-      await frame.click('.send-button');
+      await this.page.keyboard.press('Enter');
       await this.page.evaluate('api.executeCommand("cancelPrivateChat")');
     } else {
-      await frame.click('.send-button');
+      await this.page.keyboard.press('Enter');
       const sendToGroup = await frame.$('#modal-dialog-cancel-button');
       if (sendToGroup) {
         await sendToGroup.click();
