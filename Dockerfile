@@ -11,6 +11,7 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 COPY --from=build /tmp/dist ./dist/
+RUN mkdir -p ./dist/commands/local/
 COPY package*.json index.html ./
 
 RUN npm ci
