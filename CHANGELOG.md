@@ -1,5 +1,7 @@
 # Development
 
+# v2.1.0
+
 ### Bug Fixes
 * Fixed sending messages on older Jitsi instances
 
