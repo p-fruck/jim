@@ -1,3 +1,13 @@
+# Development
+
+# v2.1.0
+
+### Bug Fixes
+* Fixed sending messages on older Jitsi instances
+
+### Features
+* Added support for self-hosted instances
+
 # v2.0.0
 
 ### Bug Fixes
