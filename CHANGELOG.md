@@ -1,5 +1,10 @@
 # Development
 
+# v2.1.1
+
+### Bug Fixes
+* Bumped dependencies
+
 # v2.1.0
 
 ### Bug Fixes
