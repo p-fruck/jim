@@ -29,7 +29,7 @@
     <img src="https://img.shields.io/github/issues/p-fruck/jim" />
   </a>
   <a href="https://meet.jit.si/">
-    <img src="https://img.shields.io/badge/Build%20for-Jitsi%20Meet-5e87d4" />
+    <img src="https://img.shields.io/badge/Built%20for-Jitsi%20Meet-5e87d4" />
   </a>
 </p>
 
@@ -87,14 +87,13 @@ You would like to know what my key features are? - I will assist you bringing go
 
 ## :rocket: How to deploy
 
-You can simply build and deploy JIM as a container using
+You can simply deploy JIM as a container using
 
 ```sh
-docker build -t jim https://github.com/p-fruck/jim.git --squash
-docker run --rm -d --init --cap-add=SYS_ADMIN --name=jim -e ROOM_NAME=YourJitsiRoom jim
+docker run --rm -d --init --cap-add=SYS_ADMIN --name=jim -e ROOM_NAME=YourJitsiRoom ghcr.io/p-fruck/jim/jim
 ```
 
-You can even mount a `.env` file to store your environment variables by adding `-v .env:.env` to the docker command.
+This also works with podman. You can even mount a `.env` file to store your environment variables by adding `-v /path/to/.env:.env` to the docker command.
 
 Alternatively, you can start the bot without any sort of container-technology, using
 `npm ci && npm run start`.
