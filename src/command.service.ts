@@ -19,7 +19,6 @@ export default class CommandService {
     this.jim = jim;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   static async init(jim: JitsiBot, registerLocalCommands = true) {
     const promises = [];
     const cmdDir = path.join(__dirname, '/commands');

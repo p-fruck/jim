@@ -1,9 +1,14 @@
 # Development
 
+# v2.1.2
+
+### Security Fixes
+* Updated vulnerable dependencies
+
 # v2.1.1
 
-### Bug Fixes
-* Bumped dependencies
+### Security Fixes
+* Updated vulnerable dependencies
 
 # v2.1.0
 
