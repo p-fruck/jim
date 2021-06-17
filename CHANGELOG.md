@@ -1,5 +1,10 @@
 # Development
 
+# v2.1.3
+
+### Bug Fixes
+* Fixed issue that bot would not unmute when music is getting played
+
 # v2.1.2
 
 ### Security Fixes
