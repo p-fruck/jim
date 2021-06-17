@@ -23,15 +23,15 @@
     }
 
     /**
-     * Set the gain value
+     * Set the gain value and unmute if gain > 0
      *
      * @param {number} gain - The gain value in percent
      */
     function setGain(gain) {
         gain = (gain / 100).toPrecision(3);
-        if (gain > 1) gainNode.gain.value = 1;
-        else if (gain < 0) gainNode.gain.value = 0;
-        else gainNode.gain.value = gain;
+        // normalize gain to be between 0 and 1
+        gainNode.gain.value = [0, gain, 1].sort()[1];
+        if (gain) unmute();
     }
 
     /**
@@ -119,12 +119,21 @@
     }
 
     /**
+     * Check if the bot is currently muted and if so, unmute him
+     */
+    async function unmute() {
+        const isMuted = await api.isAudioMuted();
+        if (isMuted) api.executeCommand('toggleAudio');
+    }
+
+    /**
      * Take an url to an audio file and use it as microphone input
      *
      * @param {string} url - The url to play back
      */
     async function playAudio(url) {
         await audio.pause();
+        unmute();
         audio.setAttribute("src", url);
         await audio.play();
     }
