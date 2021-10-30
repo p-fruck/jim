@@ -1,4 +1,4 @@
-FROM node:16.0.0-buster-slim as build
+FROM node:16-buster-slim as build
 ENV NODE_ENV=development
 
 WORKDIR /tmp
@@ -6,7 +6,7 @@ COPY ./ ./
 
 RUN npm ci && npm run build
 
-FROM node:16.0.0-buster-slim
+FROM node:16-buster-slim
 ENV NODE_ENV=production
 
 WORKDIR /app
