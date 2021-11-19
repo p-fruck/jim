@@ -1,3 +1,11 @@
+# Jim is dead, long live Jim
+
+TL;DR: Jim is discontinued and his successor can be found [here](https://github.com/p-fruck/Jimmi)
+
+If you are interested in the how and why, check out [this issue](https://github.com/p-fruck/jim/issues/37)
+
+----
+
 <h1 align="center">
   <br />
   <img src="https://raw.githubusercontent.com/p-fruck/jim/master/src/assets/logo.svg" alt="JIM" width="200"></a>
